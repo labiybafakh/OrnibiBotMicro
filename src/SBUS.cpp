@@ -8,22 +8,24 @@
 // }
 
 void SBUS::init(){
+    //Initialize Serial Port
     Serial2.begin(sbus_speed, SERIAL_8E2, 16, 17, true); 
 }
 
 int SBUS::degToSignal(int pos){
-    //Min pulse 920, Max pulse 2120, Mid Pulse 1520
+    //Rotate Servo from -60 to 60 Degrees
     return (int)(1220 + pos*3);
 }
 void SBUS::setPosition(int pos[]){
-
+    //Convert Position in degree to signal
     sbus_servo_id[0] = SBUS::degToSignal(pos[0]);
     sbus_servo_id[1] = SBUS::degToSignal(pos[1]);
     sbus_servo_id[2] = SBUS::degToSignal(pos[2]);
     sbus_servo_id[3] = SBUS::degToSignal(pos[3]);
     sbus_servo_id[4] = 0;
     sbus_servo_id[5] = 0;
-    
+
+    //Encode Servo Position into a packet data
     sbus_data[0] = 0x0f;
     sbus_data[1] =  sbus_servo_id[0] & 0xff;
     sbus_data[2] = ((sbus_servo_id[0] >> 8) & 0x07 ) | ((sbus_servo_id[1] << 3 ) );
@@ -38,5 +40,6 @@ void SBUS::setPosition(int pos[]){
 }
 
 bool SBUS::sendPosition(){
+    //Sending packet data to SBUS
     return Serial2.write(sbus_data, 25);
 }
