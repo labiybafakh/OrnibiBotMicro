@@ -32,6 +32,7 @@ class OrnibiBot{
         volatile int16_t sineFlap();
         volatile int16_t squareFlap();
         volatile int16_t sawFlap();
+        volatile int16_t triangleFlap();
 
         tailPosition tail_position;
 

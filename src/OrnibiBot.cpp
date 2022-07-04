@@ -21,4 +21,8 @@ volatile int16_t OrnibiBot::squareFlap(){
 
 volatile int16_t OrnibiBot::sawFlap(){
     return -(2*_amplitude/M_PI) * atan(tan((M_PI*_time)/(double)OrnibiBot::getFlapMs()));
-} 
+}
+
+volatile int16_t OrnibibBot::triangleFlap(){
+    return (2*_amplitude/M_PI)*asin(math.sin((2*M_PI/(double)OrnibiBot::getFlapMs())*_time))
+}
