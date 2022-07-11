@@ -26,13 +26,13 @@
 #define upStrokeL 1900
 #define downStrokeL 1400
 // #define midLeft 1600
-#define midLeft 60
+#define midLeft 0
 
 //Right Wing Configuration
 #define upStrokeR 1100
 #define downStrokeR 1600
 // #define midRight 1400
-#define midRight 60
+#define midRight 0
 
 #define midPitch 90
 #define midRoll 90
@@ -107,28 +107,26 @@ ros::Subscriber<geometry_msgs::Twist> tail("tail", tail_cb);
 void paramUpdate( void * pvParameters ){
   Serial.print("Task1 running on core ");
   Serial.println(xPortGetCoreID());
-
   for(;;){
     if (nh.connected()) {
     digitalWrite(2, HIGH);
   
     if(flapMode==true && robot._flapFreq>0.01f){
 
-      robot._amplitude = 35;
+      robot._amplitude  = 30;
+      robot._offset     = 15;
     
-      _targetServo[0] = midLeft+robot.squareFlap();
-      _targetServo[1] = midRight-robot.squareFlap();
+      _targetServo[0] = midLeft+robot.triangleFlap();
+      _targetServo[1] = midRight-robot.triangleFlap();
       _targetServo[2] = robot.tail_position.pitch;
       _targetServo[3] = robot.tail_position.roll;
 
       if(robot._time<robot._periode)robot._time++;
-      // if(counter<robot._periode)counter++;
       else robot._time=0;  
-      
 
       /*Problem Here
       it causes delay during interpolation*/
-      // str_msg.data = _targetServo[2];
+      // str_msg.data = _targetServo[1];
       // chatter.publish( &str_msg );
     }
   }
@@ -155,7 +153,7 @@ void motorUpdate( void * pvParameters ){
   for(;;){
       // sendData();
       sbus.sendPosition();
-      delay(20);
+      delay(10);
       
   }
 }

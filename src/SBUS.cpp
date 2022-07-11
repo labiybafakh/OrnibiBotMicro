@@ -14,7 +14,12 @@ void SBUS::init(){
 
 int SBUS::degToSignal(int pos){
     //Rotate Servo from -60 to 60 Degrees
-    return (int)(1220 + pos*3);
+    //Mid Servo using SBUS is 1023
+    //Upstroke<1023 - Downstroke>1023
+    if(pos>60)         pos=60;
+    else if(pos<-60)   pos=-60;
+
+    return (int)(1023 - (double)(-pos*17)); //reversed to adjust upstroke-downstroke
 }
 void SBUS::setPosition(int pos[]){
     //Convert Position in degree to signal

@@ -23,6 +23,7 @@ class OrnibiBot{
         };
 
     public:
+        volatile int16_t _offset;
         volatile uint16_t _time;
         volatile uint16_t _amplitude;
         volatile double _flapFreq;
