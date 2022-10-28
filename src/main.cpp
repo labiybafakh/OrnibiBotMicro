@@ -3,8 +3,10 @@
 #include <ESP32Servo.h>
 #include <Thread.h>
 #include <ThreadController.h>
-#include "SBUS.h"
-#include "OrnibibBot.h"
+// #include <AS5048A.h>
+
+#include "SBUS.hpp"
+#include "OrnibibBot.hpp"
 
 #include <iostream>
 #include <ros.h>
@@ -116,8 +118,8 @@ void paramUpdate( void * pvParameters ){
       robot._amplitude  = 30;
       robot._offset     = 15;
     
-      _targetServo[0] = midLeft+robot.triangleFlap();
-      _targetServo[1] = midRight-robot.triangleFlap();
+      _targetServo[0] = midLeft+robot.sawFlap();
+      _targetServo[1] = midRight-robot.sawFlap();
       _targetServo[2] = robot.tail_position.pitch;
       _targetServo[3] = robot.tail_position.roll;
 
@@ -180,6 +182,7 @@ void setup()
   // Set the connection to rosserial socket server
   nh.getHardware()->setConnection(server, serverPort);
   nh.initNode();
+  nh.setSpinTimeout(1);
 
   // Another way to get IP
   Serial.print("IP = ");
@@ -194,7 +197,7 @@ void setup()
   xTaskCreatePinnedToCore(
                     paramUpdate,   /* Task function. */
                     "Task1",     /* name of task. */
-                    10000,       /* Stack size of task */
+                    10,       /* Stack size of task */
                     NULL,        /* parameter of the task */
                     1,           /* priority of the task */
                     &Task1,      /* Task handle to keep track of created task */
@@ -203,7 +206,7 @@ void setup()
   xTaskCreatePinnedToCore(
                     motorUpdate,   /* Task function. */
                     "Task2",     /* name of task. */
-                    10000,       /* Stack size of task */
+                    10,       /* Stack size of task */
                     NULL,        /* parameter of the task */
                     1,           /* priority of the task */
                     &Task2,      /* Task handle to keep track of created task */

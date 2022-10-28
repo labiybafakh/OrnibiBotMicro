@@ -1,11 +1,13 @@
-#include "SBUS.h"
+#include "SBUS.hpp"
 #include <Arduino.h>
 
 
 
-// SBUS::SBUS(){
+SBUS::SBUS(){
+    _rx_sbus_data = rx_sbus_data;
+}
 
-// }
+SBUS::~SBUS(){}
 
 void SBUS::init(){
     //Initialize Serial Port
@@ -47,4 +49,16 @@ void SBUS::setPosition(int pos[]){
 bool SBUS::sendPosition(){
     //Sending packet data to SBUS
     return Serial2.write(sbus_data, 25);
+}
+
+
+char *SBUS::get_sbus(){
+    char header;
+    char position[4];
+
+    return _rx_sbus_data;
+}
+
+void SBUS::getPosition(){
+    
 }

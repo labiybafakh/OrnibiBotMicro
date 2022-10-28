@@ -1,4 +1,4 @@
-#include "OrnibibBot.h"
+#include "OrnibibBot.hpp"
 
 
 
@@ -17,10 +17,16 @@ volatile int16_t OrnibiBot::squareFlap(){
     if(signal>0) return _amplitude + _offset;
     else if(signal==0) return (int)0;
     else return _amplitude*-1 + _offset;
+
 }
 
 volatile int16_t OrnibiBot::sawFlap(){
+    return (2*_amplitude/M_PI) * atan(tan((M_PI*_time)/(double)OrnibiBot::getFlapMs())) + _offset;
+}
+
+volatile int16_t OrnibiBot::reverse_sawFlap(){
     return -(2*_amplitude/M_PI) * atan(tan((M_PI*_time)/(double)OrnibiBot::getFlapMs())) + _offset;
+
 }
 
 volatile int16_t OrnibiBot::triangleFlap(){
