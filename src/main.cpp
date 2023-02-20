@@ -5,7 +5,14 @@
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 
+#include <pthread.h>
+#include <time.h>
+
 #include <std_msgs/msg/int32.h>
+#include <std_msgs/msg/int32_multi_array.h>
+
+// #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){printf("Failed status on line %d: %d. Aborting.\n",__LINE__,(int)temp_rc); return 1;}}
+// #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){printf("Failed status on line %d: %d. Continuing.\n",__LINE__,(int)temp_rc);}}
 
 IPAddress agent_ip(192,168,30,243);
 size_t agent_port = 8888;
@@ -21,6 +28,7 @@ rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
 rcl_timer_t timer;
+int i = 0;
 
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
@@ -36,6 +44,10 @@ void timer_callback(rcl_timer_t * timer, int64_t last_call_time) {
   RCLC_UNUSED(last_call_time);
   if (timer != NULL) {
     RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
+      // msg.layout.dim.capacity=3;
+      // msg.data[0]=i++;
+      // msg.data[1]=i+=2;
+      // msg.data[2]=i+=3;
     msg.data++;
   }
 }
@@ -61,7 +73,7 @@ void setup() {
     "micro_ros_platformio_node_publisher"));
 
   // create timer,
-  const unsigned int timer_timeout = 1000;
+  const unsigned int timer_timeout = 1;
   RCCHECK(rclc_timer_init_default(
     &timer,
     &support,
@@ -76,6 +88,6 @@ void setup() {
 }
 
 void loop() {
-  delay(100);
-  RCSOFTCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100)));
+  delay(1);
+  RCSOFTCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(10)));
 }
