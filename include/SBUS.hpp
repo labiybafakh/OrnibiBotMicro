@@ -2,6 +2,8 @@
 #define SBUS_HPP
 
 #include <array>
+#include <iostream>
+#include "HardwareSerial.h"
 
 
 class SBUS{
@@ -18,9 +20,10 @@ class SBUS{
         int servo_position[5];
         char rx_sbus_data[25];
         char* _rx_sbus_data;
+        Stream *serial_dev_;
         
     public:
-        SBUS();
+        SBUS(HardwareSerial *serial_dev);
         ~SBUS();
         void init();
         int degToSignal(int pos);

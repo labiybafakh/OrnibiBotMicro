@@ -2,12 +2,8 @@
 #define ORNIBIBOT_HPP
 
 #include <Arduino.h>
-#include <WiFi.h>
 #include <iostream>
-#include <ros.h>
-#include <std_msgs/Int16.h>
-#include <std_msgs/Float32.h>
-#include <geometry_msgs/Twist.h>
+#include <micro_ros_platformio.h>
 #include <math.h>
 #include <string.h>
 // #include "OrnibiBot.hpp"
@@ -35,9 +31,9 @@ class OrnibiBot{
         volatile int16_t sawFlap();
         volatile int16_t triangleFlap();
         volatile int16_t reverse_sawFlap();
-        uint32_t getRawPosition(uint8_t pin);
-        double getPositioninRadians(uint8_t pin);
-        double getPositioninDegrees(uint8_t pin);
+        // uint32_t getRawPosition(uint8_t pin);
+        // double getPositioninRadians(uint8_t pin);
+        // double getPositioninDegrees(uint8_t pin);
 
     public:
         volatile int16_t _offset;
@@ -47,7 +43,7 @@ class OrnibiBot{
         volatile uint16_t _periode;
         volatile uint16_t _flapping;
 
-        volatile uint16_t flappingPattern(uint8_t pattern);
+        volatile int16_t flappingPattern(uint8_t pattern);
 
         tailPosition tail_position;
 

@@ -33,22 +33,22 @@ volatile int16_t OrnibiBot::triangleFlap(){
 }
 
 volatile int16_t OrnibiBot::flappingPattern(uint8_t pattern){
-    if(pattern==sine) OrnibiBot::sineFlap();
-    else if(pattern==triangle) OrnibiBot::triangleFlap();
-    else if(pattern==square) OrnibiBot::squareFlap();
-    else if(pattern==saw) OrnibiBot::sawFlap();
-    else if(pattern==rev_saw) OrnibiBot::reverse_sawFlap();
+    if(pattern==sine) return OrnibiBot::sineFlap();
+    else if(pattern==triangle) return OrnibiBot::triangleFlap();
+    else if(pattern==square) return OrnibiBot::squareFlap();
+    else if(pattern==saw) return OrnibiBot::sawFlap();
+    else if(pattern==rev_saw) return OrnibiBot::reverse_sawFlap();
 }
 
-double OrnibiBot::getRawPosition(uint8_t pin){
-    pinMode(pin, INPUT);
-    return pulseIn(pin, RISSING, 1000);
-}
+// double OrnibiBot::getRawPosition(uint8_t pin){
+//     pinMode(pin, INPUT);
+//     return pulseIn(pin, RISSING, 1000);
+// }
 
-double OrnibiBot::getPositioninRadians(uint8_t pin){
-    return OrnibiBot::getRawPosition * scalar;
-}
+// double OrnibiBot::getPositioninRadians(uint8_t pin){
+//     return OrnibiBot::getRawPosition * scalar;
+// }
 
-double OrnibiBot::getPositioninDegrees(uint8_t pin){
-    return OrnibiBot::getPositioninRadians(pin) * RADS;
-}
+// double OrnibiBot::getPositioninDegrees(uint8_t pin){
+//     return OrnibiBot::getPositioninRadians(pin) * RADS;
+// }

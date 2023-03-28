@@ -2,16 +2,15 @@
 #include <Arduino.h>
 
 
-
-SBUS::SBUS(){
+SBUS::SBUS(HardwareSerial *serial_dev){
+    serial_dev_ = serial_dev;
     _rx_sbus_data = rx_sbus_data;
+
+    ((HardwareSerial *)serial_dev_)->begin(sbus_speed,8E2);
 }
 
-SBUS::~SBUS(){}
-
-void SBUS::init(){
-    //Initialize Serial Port
-    Serial2.begin(sbus_speed, SERIAL_8E2, 16, 17, true); 
+SBUS::~SBUS(){
+    ((HardwareSerial *)serial_dev_)->end();
 }
 
 int SBUS::degToSignal(int pos){
@@ -48,7 +47,7 @@ void SBUS::setPosition(int pos[]){
 
 bool SBUS::sendPosition(){
     //Sending packet data to SBUS
-    return Serial2.write(sbus_data, 25);
+    return serial_dev_->write(sbus_data, 25);
 }
 
 
