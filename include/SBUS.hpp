@@ -23,7 +23,7 @@ class SBUS{
         Stream *serial_dev_;
         
     public:
-        SBUS(HardwareSerial *serial_dev);
+        SBUS(HardwareSerial *serial_dev, bool invert);
         ~SBUS();
         void init();
         int degToSignal(int pos);

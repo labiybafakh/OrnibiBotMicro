@@ -2,11 +2,14 @@
 #include <Arduino.h>
 
 
-SBUS::SBUS(HardwareSerial *serial_dev){
+SBUS::SBUS(HardwareSerial *serial_dev, bool invert){
     serial_dev_ = serial_dev;
     _rx_sbus_data = rx_sbus_data;
-
-    ((HardwareSerial *)serial_dev_)->begin(sbus_speed,8E2);
+    
+    if(invert)
+        ((HardwareSerial *)serial_dev_)->begin(sbus_speed, SERIAL_8E2_TXINV);
+    else
+        ((HardwareSerial *)serial_dev_)->begin(sbus_speed, SERIAL_8E2);
 }
 
 SBUS::~SBUS(){

@@ -2,8 +2,15 @@
 #include <micro_ros_platformio.h>
 #include "SBUS.hpp"
 #include "OrnibibBot.hpp"
+#include "Thread.h"
+#include "ThreadController.h"
 
-SBUS flapping(&Serial1);
+
+SBUS wing_left(&Serial1, true);
+SBUS wing_right(&Serial2, true);
+SBUS tail_pitch(&Serial4, true);
+SBUS tail_roll(&Serial5, true);
+
 OrnibiBot robot;
 
 int targetServo[5];
@@ -11,24 +18,30 @@ int targetServo[5];
 void setup()
 {
   Serial.begin(115200);
+  
 }
 
 void loop()
 {
+  robot._flapFreq = 5;
   robot._amplitude = 30;
   robot._offset = 0;
-  for (auto& goal : targetServo)
-  {
-    targetServo[goal] = robot.flappingPattern(sine);
-  }
 
-  flapping.setPosition(targetServo);
-  flapping.sendPosition();
+  targetServo[0] = robot.flappingPattern(sine);
+  targetServo[1] = robot.flappingPattern(sine);
+    Serial.println(targetServo[0]);
+
+  wing_left.setPosition(targetServo);
+  wing_left.sendPosition();
+
+  wing_right.setPosition(targetServo);
+  wing_right.sendPosition();
 
   if (robot._time < robot._periode)
     robot._time++;
   else
     robot._time = 0;
+
   delay(10);
 }
 
