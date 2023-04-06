@@ -6,8 +6,6 @@
 #include <micro_ros_platformio.h>
 #include <math.h>
 #include <string.h>
-#include <Thread.h>
-#include <ThreadController.h>
 
 #define sine 1
 #define square 2
@@ -15,38 +13,50 @@
 #define rev_saw 4
 #define triangle 5
 
-class OrnibiBot{
-        
-    private:
-        double scalar = 1;
-        
-        volatile uint16_t getFlapMs();
-        struct tailPosition{
-            unsigned int roll;
-            unsigned int pitch;
-        };
+class OrnibiBot
+{
+private:
+  double scalar = 1;
 
-        volatile int16_t sineFlap();
-        volatile int16_t squareFlap();
-        volatile int16_t sawFlap();
-        volatile int16_t triangleFlap();
-        volatile int16_t reverse_sawFlap();
-        // uint32_t getRawPosition(uint8_t pin);
-        // double getPositioninRadians(uint8_t pin);
-        // double getPositioninDegrees(uint8_t pin);
+  volatile uint16_t getFlapMs();
 
-    public:
-        volatile int16_t _offset;
-        volatile uint16_t _time;
-        volatile uint16_t _amplitude;
-        volatile double _flapFreq;
-        volatile uint16_t _periode;
-        volatile uint16_t _flapping;
+//   enum patternFlap
+//   {
+//     sine,
+//     square,
+//     saw,
+//     rev_saw,
+//     triangle
+//   };
 
-        volatile int16_t flappingPattern(uint8_t pattern);
+  struct tailPosition
+  {
+    unsigned int roll;
+    unsigned int pitch;
+  };
 
-        tailPosition tail_position;
+  volatile int16_t sineFlap();
+  volatile int16_t squareFlap();
+  volatile int16_t sawFlap();
+  volatile int16_t triangleFlap();
+  volatile int16_t reverse_sawFlap();
+  // uint32_t getRawPosition(uint8_t pin);
+  // double getPositioninRadians(uint8_t pin);
+  // double getPositioninDegrees(uint8_t pin);
 
+public:
+  volatile int16_t _offset;
+  volatile uint16_t _time;
+  volatile uint16_t _amplitude;
+  volatile double _flapFreq;
+  volatile uint16_t _periode;
+  volatile uint16_t _flapping;
+
+  volatile int16_t flappingPattern(uint8_t pattern);
+
+  tailPosition tail_position;
+
+//   patternFlap flapping_pattern_;
 };
 
 #endif

@@ -2,9 +2,7 @@
 #include <micro_ros_platformio.h>
 #include "SBUS.hpp"
 #include "OrnibibBot.hpp"
-#include "Thread.h"
-#include "ThreadController.h"
-
+#include "TeensyThreads.h"
 
 SBUS wing_left(&Serial1, true);
 SBUS wing_right(&Serial2, true);
@@ -15,32 +13,67 @@ OrnibiBot robot;
 
 int targetServo[5];
 
+void threadSBUS()
+{
+  while (1)
+  {
+    wing_left.sendPosition();
+    wing_right.sendPosition();
+
+    threads.delay(1);
+  }
+}
+
+void threadROS()
+{
+  while (1)
+  {
+    robot._flapFreq = 10;
+    robot._amplitude = 30;
+    robot._offset = 0;
+
+    targetServo[0] = robot.flappingPattern(saw);
+    targetServo[1] = -robot.flappingPattern(saw);
+
+    wing_left.setPosition(targetServo);
+    wing_right.setPosition(targetServo);
+
+    if (robot._time < robot._periode)
+      robot._time++;
+    else
+      robot._time = 0;
+
+    threads.delay(1);
+  }
+}
+
+void threadSensor()
+{
+  while (1)
+  {
+    // Serial.println("threadSensor");
+    threads.delay(1);
+  }
+}
+
 void setup()
 {
   Serial.begin(115200);
-  
+  threads.addThread(threadSBUS);
+  threads.addThread(threadROS);
+  threads.addThread(threadSensor);
+  while(Serial);
 }
 
 void loop()
 {
-  robot._flapFreq = 5;
-  robot._amplitude = 30;
-  robot._offset = 0;
+  //   Serial.print("MAIN ");
+  Serial.print(threads.id());
+  Serial.print(" ");
+  Serial.println(millis());
+  // threads.delay(1000);
 
-  targetServo[0] = robot.flappingPattern(sine);
-  targetServo[1] = robot.flappingPattern(sine);
-    Serial.println(targetServo[0]);
-
-  wing_left.setPosition(targetServo);
-  wing_left.sendPosition();
-
-  wing_right.setPosition(targetServo);
-  wing_right.sendPosition();
-
-  if (robot._time < robot._periode)
-    robot._time++;
-  else
-    robot._time = 0;
+  //   Serial.println(targetServo[0]);
 
   delay(10);
 }
