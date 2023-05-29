@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <iostream>
-#include <micro_ros_platformio.h>
 #include <math.h>
 #include <string.h>
 
