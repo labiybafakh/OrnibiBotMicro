@@ -16,10 +16,14 @@
 #define INA219_REG_CALIBRATION 0x05
 
 class INA219{
-
+    private:
+        uint8_t _address;
+        TwoWire *_wire;
     public:
-        INA219();
+        INA219(const uint8_t device_address, TwoWire *wire);
         ~INA219();
+        bool begin();
+        bool isConnected();
         int16_t readRegister(uint8_t reg);
         float getCurrent();
         float getBusVoltage();

@@ -1,11 +1,21 @@
-#include "ina219.hpp"
+#include "INA219.hpp"
 
-INA219::INA219(){
-
+INA219::INA219(const uint8_t device_address, TwoWire *wire){
+  _address  = device_address;
+  _wire     = wire;
 }
 
 INA219::~INA219(){
+  _wire->end();
+}
 
+bool INA219::begin(){
+  _wire->begin();
+}
+
+bool INA219::isConnected(){
+  _wire->beginTransmission(_address);
+  return ( _wire->endTransmission() == 0);
 }
 
 int16_t INA219::readRegister(uint8_t reg) {
