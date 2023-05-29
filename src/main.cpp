@@ -39,34 +39,36 @@ float decodeFloatToInt(int16_t value){
     return value/100.0f;
 }
 
-actuatorData *_wingLeft;
-actuatorData *_wingRight;
+actuatorData wingLeft;
+actuatorData wingRight;
+actuatorData *_wingLeft = &wingLeft;
+actuatorData *_wingRight = &wingRight;
 
-packetData *_packetData;
+packetData packetSerial;
+packetData *_packetSerial = &packetSerial;
 
 void sendingPacket(){
-    byte _packet[14];
+    byte _packet[16];
 
     _packet[0] = 0xFF;
-    _packet[1] = _packetData->timestamp & 0xFF;
-    _packet[2] = (_packetData->timestamp >> 8) & 0xFF;
-    _packet[3] = _packetData->positionLeft & 0xFF;
-    _packet[4] = (_packetData->positionLeft >> 8) & 0xFF;
-    _packet[5] = _packetData->positionRight & 0xFF;
-    _packet[6] = (_packetData->positionRight >> 8) & 0xFF;
-    _packet[7] = _packetData->currentLeft & 0xFF;
-    _packet[8] = (_packetData->currentLeft >> 8) & 0xFF;
-    _packet[9] = _packetData->currentRight & 0xFF;
-    _packet[10] = (_packetData->currentRight >> 8) & 0xFF;
-    _packet[12] = _packetData->voltageLeft & 0xFF;
-    _packet[12] = (_packetData->voltageLeft >> 8) & 0xFF;   
-    _packet[13] = _packetData->voltageRight & 0xFF;
-    _packet[14] = (_packetData->voltageRight >> 8) & 0xFF;  
+    _packet[1] = _packetSerial->timestamp & 0xFF;
+    _packet[2] = (_packetSerial->timestamp >> 8) & 0xFF;
+    _packet[3] = _packetSerial->positionLeft & 0xFF;
+    _packet[4] = (_packetSerial->positionLeft >> 8) & 0xFF;
+    _packet[5] = _packetSerial->positionRight & 0xFF;
+    _packet[6] = (_packetSerial->positionRight >> 8) & 0xFF;
+    _packet[7] = _packetSerial->currentLeft & 0xFF;
+    _packet[8] = (_packetSerial->currentLeft >> 8) & 0xFF;
+    _packet[9] = _packetSerial->currentRight & 0xFF;
+    _packet[10] = (_packetSerial->currentRight >> 8) & 0xFF;
+    _packet[12] = _packetSerial->voltageLeft & 0xFF;
+    _packet[12] = (_packetSerial->voltageLeft >> 8) & 0xFF;   
+    _packet[13] = _packetSerial->voltageRight & 0xFF;
+    _packet[14] = (_packetSerial->voltageRight >> 8) & 0xFF;  
     _packet[15] = 0x30;   
 
     //encode the packet into a packet array to send using serial.write
-    Serial.write(_packet, 14);
-    Serial.println("DONE");
+    Serial.write(_packet, 16);
 }
 
 void setup() {
@@ -83,6 +85,7 @@ void setup() {
 }
 
 void loop() {
+    
     _wingLeft->position = 2.33f;
     _wingLeft->current  = 1.32f;
     _wingLeft->voltage  = 8.4f;
@@ -91,15 +94,15 @@ void loop() {
     _wingRight->current  = 2.32f;
     _wingRight->voltage  = 7.4f;
 
-    _packetData->timestamp      = millis();
-    _packetData->positionLeft   = encodeFloatToInt(_wingLeft->position);
-    _packetData->positionRight  = encodeFloatToInt(_wingRight->position);
-    _packetData->currentLeft    = encodeFloatToInt(_wingRight->current);
-    _packetData->currentRight   = encodeFloatToInt(_wingRight->current);
-    _packetData->voltageLeft    = encodeFloatToInt(_wingLeft->voltage);
-    _packetData->voltageRight   = encodeFloatToInt(_wingRight->voltage); 
+    _packetSerial->timestamp      = millis();
+    _packetSerial->positionLeft   = encodeFloatToInt(_wingLeft->position);
+    _packetSerial->positionRight  = encodeFloatToInt(_wingRight->position);
+    _packetSerial->currentLeft    = encodeFloatToInt(_wingRight->current);
+    _packetSerial->currentRight   = encodeFloatToInt(_wingRight->current);
+    _packetSerial->voltageLeft    = encodeFloatToInt(_wingLeft->voltage);
+    _packetSerial->voltageRight   = encodeFloatToInt(_wingRight->voltage); 
 
     sendingPacket();
-    delay(100);
+    delay(1);
 }
 
