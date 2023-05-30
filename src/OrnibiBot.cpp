@@ -40,6 +40,10 @@ volatile int16_t OrnibiBot::flappingPattern(uint8_t pattern){
     else if(pattern==rev_saw) return OrnibiBot::reverse_sawFlap();
 }
 
+void OrnibiBot::flaps(float frequency, uint8_t time){
+
+}
+
 // double OrnibiBot::getRawPosition(uint8_t pin){
 //     pinMode(pin, INPUT);
 //     return pulseIn(pin, RISSING, 1000);

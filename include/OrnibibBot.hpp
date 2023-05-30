@@ -18,20 +18,18 @@ private:
   double scalar = 1;
 
   volatile uint16_t getFlapMs();
-
-//   enum patternFlap
-//   {
-//     sine,
-//     square,
-//     saw,
-//     rev_saw,
-//     triangle
-//   };
-
+  
   struct tailPosition
   {
     unsigned int roll;
     unsigned int pitch;
+  };
+
+  struct flappingParameter{
+    uint8_t offset;
+    uint8_t time;
+    uint8_t amplitude;
+    uint8_t frequency;
   };
 
   volatile int16_t sineFlap();
@@ -39,11 +37,10 @@ private:
   volatile int16_t sawFlap();
   volatile int16_t triangleFlap();
   volatile int16_t reverse_sawFlap();
+  volatile int16_t flappingPattern(uint8_t pattern);
   // uint32_t getRawPosition(uint8_t pin);
   // double getPositioninRadians(uint8_t pin);
   // double getPositioninDegrees(uint8_t pin);
-
-public:
   volatile int16_t _offset;
   volatile uint16_t _time;
   volatile uint16_t _amplitude;
@@ -51,11 +48,16 @@ public:
   volatile uint16_t _periode;
   volatile uint16_t _flapping;
 
-  volatile int16_t flappingPattern(uint8_t pattern);
+  flappingParameter flappingParam;
+  flappingParameter *_flappingParam = &flappingParam;
+
+
+
+public:
 
   tailPosition tail_position;
+  void flaps(float frequency, uint8_t time);
 
-//   patternFlap flapping_pattern_;
 };
 
 #endif
