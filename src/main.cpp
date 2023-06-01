@@ -36,7 +36,7 @@ void setup() {
 }
 
 void loop() {
-    _comm.sendingPacket();
+    _comm.sendingPacket(&Serial);
     _ornibibot.flaps(1.1f,1);
 }
 

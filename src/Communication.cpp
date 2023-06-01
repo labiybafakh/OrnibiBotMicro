@@ -18,8 +18,10 @@ float Communication::decodeFloatToInt(int16_t value)
     return value / 100.0f;
 }
 
-void Communication::sendingPacket(){
+void Communication::sendingPacket(usb_serial_class* _serial){
     byte _packet[16];
+    
+    Communication::encodePacket();
 
     _packet[0] = 0xFF;
     _packet[1] = _packetSerial->timestamp & 0xFF;
@@ -39,7 +41,7 @@ void Communication::sendingPacket(){
     _packet[15] = 0x30;   
 
     //encode the packet into a packet array to send using serial.write
-    Serial.write(_packet, 16);
+    _serial->write(_packet, 16);
 }
 
 void Communication::encodePacket(){
@@ -58,6 +60,4 @@ void Communication::encodePacket(){
     _packetSerial->currentRight   = encodeFloatToInt(_wingRight->current);
     _packetSerial->voltageLeft    = encodeFloatToInt(_wingLeft->voltage);
     _packetSerial->voltageRight   = encodeFloatToInt(_wingRight->voltage); 
-
-    sendingPacket();
 }

@@ -41,7 +41,7 @@ private:
 public:
     Communication();
     ~Communication();
-    void sendingPacket();
+    void sendingPacket(usb_serial_class* _serial);
     void encodePacket();
 };
 
