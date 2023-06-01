@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <Arduino.h>
+#include "HardwareSerial.h"
 
 class Communication
 {
@@ -37,6 +38,7 @@ private:
     int16_t encodeFloatToInt(float value);
 
     float decodeFloatToInt(int16_t value);
+    Stream *_serial_com;
 
 public:
     Communication();

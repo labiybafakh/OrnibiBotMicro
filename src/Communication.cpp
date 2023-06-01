@@ -2,6 +2,7 @@
 
 Communication::Communication()
 {
+    // _serial_dev = serial_com;
 }
 
 Communication::~Communication()
