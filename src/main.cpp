@@ -22,9 +22,10 @@ void callbackWDT(){
 }
 
 void setup() {
-    Serial.begin(480000);
-    while (!Serial)
-    Serial.println("TESTING");
+    Serial.begin(115200);
+    SerialUSB1.begin(115200);
+    while (!Serial);
+    // Serial.println("TESTING");
 
     // WDT_timings_t configewm;
     // configewm.callback = callbackWDT;

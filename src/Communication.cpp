@@ -19,8 +19,8 @@ float Communication::decodeFloatToInt(int16_t value)
     return value / 100.0f;
 }
 
-void Communication::sendingPacket(usb_serial_class* _serial){
-    byte _packet[16];
+unsigned char* Communication::sendingPacket(usb_serial_class* _serial){
+    unsigned char _packet[16];
     
     Communication::encodePacket();
 
@@ -43,6 +43,8 @@ void Communication::sendingPacket(usb_serial_class* _serial){
 
     //encode the packet into a packet array to send using serial.write
     _serial->write(_packet, 16);
+
+    return _packet;
 }
 
 void Communication::encodePacket(){

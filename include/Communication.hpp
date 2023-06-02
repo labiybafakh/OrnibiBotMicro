@@ -43,7 +43,7 @@ private:
 public:
     Communication();
     ~Communication();
-    void sendingPacket(usb_serial_class* _serial);
+    unsigned char* sendingPacket(usb_serial_class* _serial);
     void encodePacket();
 };
 
