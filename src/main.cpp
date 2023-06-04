@@ -12,8 +12,15 @@
 
 // WDT_T4<EWM> ewm;
 
+SBUS wing_left(&Serial1, true);
+SBUS wing_right(&Serial2, true);
+
+
 Communication _comm;
-OrnibiBot _ornibibot;
+OrnibiBot robot;
+
+int targetServo[4];
+
 
 void callbackWDT(){
     digitalToggle(13);
@@ -22,9 +29,9 @@ void callbackWDT(){
 }
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(460800);
     SerialUSB1.begin(115200);
-    while (!Serial);
+    // while (!Serial);
     // Serial.println("TESTING");
 
     // WDT_timings_t configewm;
@@ -36,7 +43,29 @@ void setup() {
 }
 
 void loop() {
+    robot._flapFreq = 5;
+    robot._amplitude = 30;
+    robot._offset = 0;
+
+    // flapping.setPosition(targetServo);
+    // flapping.sendPosition();
+    targetServo[0] = robot.flappingPattern(sine);
+    targetServo[1] = robot.flappingPattern(sine);
+
+    wing_left.setPosition(targetServo);
+    wing_left.sendPosition();
+
+    wing_right.setPosition(targetServo);
+    wing_right.sendPosition();
+
+    if (robot._time < robot._periode)
+        robot._time++;
+    else
+        robot._time = 0;
+
     _comm.sendingPacket(&Serial);
-    _ornibibot.flaps(1.1f,1);
+
+    delayMicroseconds(500);
+    // _ornibibot.flaps(1.1f,1);
 }
 
