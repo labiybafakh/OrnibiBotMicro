@@ -5,6 +5,7 @@
 #include <iostream>
 #include <math.h>
 #include <string.h>
+#include "SBUS.hpp"
 
 #define sine 1
 #define square 2
@@ -17,20 +18,25 @@ class OrnibiBot
 private:
   double scalar = 1;
 
-  volatile uint16_t getFlapMs();
-  
   struct tailPosition
   {
     unsigned int roll;
     unsigned int pitch;
   };
 
-  struct flappingParameter{
+  typedef struct {
     uint8_t offset;
     uint8_t time;
     uint8_t amplitude;
-    uint8_t frequency;
-  };
+    float frequency;
+  } flappingParameter;
+
+  typedef struct{
+    float actual_right;
+    float actual_left;
+    int desired_right;
+    int desired_left;
+  } wingPosition;
 
   volatile int16_t sineFlap();
   volatile int16_t squareFlap();
@@ -41,22 +47,19 @@ private:
   // double getPositioninRadians(uint8_t pin);
   // double getPositioninDegrees(uint8_t pin);
 
-  flappingParameter flappingParam;
-  flappingParameter *_flappingParam = &flappingParam;
-
-
-
-public:
-  volatile int16_t _offset;
-  volatile uint16_t _time;
-  volatile uint16_t _amplitude;
-  volatile double _flapFreq;
   volatile uint16_t _periode;
   volatile uint16_t _flapping;
 
+public:
+  flappingParameter *_flappingParam;
+  wingPosition *_wingPosition;
+
   tailPosition tail_position;
-  void flaps(float frequency, uint8_t time);
-  volatile int16_t flappingPattern(uint8_t pattern);
+
+  OrnibiBot();
+  ~OrnibiBot();
+  volatile uint16_t getFlapMs();
+  volatile int8_t flappingPattern(uint8_t pattern);
 
 
 };

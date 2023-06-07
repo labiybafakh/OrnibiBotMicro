@@ -25,7 +25,7 @@ int SBUS::degToSignal(int pos){
 
     return (int)(1023 - (double)(-pos*17)); //reversed to adjust upstroke-downstroke
 }
-void SBUS::setPosition(int pos[]){
+bool SBUS::setPosition(int pos[]){
     //Convert Position in degree to signal
     sbus_servo_id[0] = SBUS::degToSignal(pos[0]);
     sbus_servo_id[1] = SBUS::degToSignal(pos[1]);
@@ -46,6 +46,21 @@ void SBUS::setPosition(int pos[]){
     sbus_data[8] = ((sbus_servo_id[5] >> 1) & 0xff ) ;
     sbus_data[9] = ((sbus_servo_id[5] >> 9) & 0x03 ) ;
 
+    return sendPosition();
+
+}
+
+bool SBUS::setPosition(int pos){
+
+    // Encode Servo Position for channel 0 into a packet data
+    sbus_data[0] = 0x0F;  // Start byte
+    sbus_data[1] = sbus_servo_id[0] & 0xFF;  // Lower 8 bits of channel 0
+    sbus_data[2] = (sbus_servo_id[0] >> 8) & 0x07;  // Upper 3 bits of channel 0
+    // Stop byte(s) can be set according to the specifics of your receiver
+    sbus_data[23] = 0x00;
+    sbus_data[24] = 0x00;
+
+    sendPosition();
 }
 
 bool SBUS::sendPosition(){
@@ -54,13 +69,13 @@ bool SBUS::sendPosition(){
 }
 
 
-char *SBUS::get_sbus(){
-    char header;
-    char position[4];
+// char *SBUS::get_sbus(){
+//     char header;
+//     char position[4];
 
-    return _rx_sbus_data;
-}
+//     return _rx_sbus_data;
+// }
 
-void SBUS::getPosition(){
+// void SBUS::getPosition(){
     
-}
+// }
