@@ -34,8 +34,8 @@ private:
   typedef struct{
     float actual_right;
     float actual_left;
-    int desired_right;
-    int desired_left;
+    uint16_t desired_right;
+    uint16_t desired_left;
   } wingPosition;
 
   volatile int16_t sineFlap();

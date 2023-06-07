@@ -28,7 +28,7 @@ class SBUS{
         void init();
         int degToSignal(int pos);
         bool setPosition(int pos[]);
-        bool setPosition(int pos);
+        // bool setPosition(int pos);
         bool sendPosition();
         // char* get_sbus();
         // void getPosition();
