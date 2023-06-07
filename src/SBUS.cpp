@@ -50,18 +50,18 @@ bool SBUS::setPosition(int pos[]){
 
 }
 
-bool SBUS::setPosition(int pos){
+// bool SBUS::setPosition(int pos){
 
-    // Encode Servo Position for channel 0 into a packet data
-    sbus_data[0] = 0x0F;  // Start byte
-    sbus_data[1] = sbus_servo_id[0] & 0xFF;  // Lower 8 bits of channel 0
-    sbus_data[2] = (sbus_servo_id[0] >> 8) & 0x07;  // Upper 3 bits of channel 0
-    // Stop byte(s) can be set according to the specifics of your receiver
-    sbus_data[23] = 0x00;
-    sbus_data[24] = 0x00;
+//     // Encode Servo Position for channel 0 into a packet data
+//     sbus_data[0] = 0x0F;  // Start byte
+//     sbus_data[1] = sbus_servo_id[0] & 0xFF;  // Lower 8 bits of channel 0
+//     sbus_data[2] = (sbus_servo_id[0] >> 8) & 0x07;  // Upper 3 bits of channel 0
+//     // Stop byte(s) can be set according to the specifics of your receiver
+//     sbus_data[23] = 0x00;
+//     sbus_data[24] = 0x00;
 
-    sendPosition();
-}
+//     sendPosition();
+// }
 
 bool SBUS::sendPosition(){
     //Sending packet data to SBUS

@@ -8,6 +8,7 @@ OrnibiBot::OrnibiBot(){
 
 OrnibiBot::~OrnibiBot(){
     free(_flappingParam);
+    free(_wingPosition);
 }
 
 volatile uint16_t OrnibiBot::getFlapMs(){

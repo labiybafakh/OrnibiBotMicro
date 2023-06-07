@@ -27,8 +27,8 @@ rcl_timer_t timer;
 
 OrnibiBot robot;
 
-SBUS wing_left(&Serial1, true);
-SBUS wing_right(&Serial2, true);
+// SBUS wing_left(&Serial1, true);
+// SBUS wing_right(&Serial2, true);
 
 IntervalTimer interpolation;
 IntervalTimer sbus;
@@ -57,8 +57,8 @@ void interpolationHandler(){
 
 void sbusHandler(){
 
-    wing_left.setPosition(robot._wingPosition->desired_left);
-    wing_right.setPosition(robot._wingPosition->desired_right);
+    // wing_left.setPosition(robot._wingPosition->desired_left);
+    // wing_right.setPosition(robot._wingPosition->desired_right);
 
 }
 
@@ -81,6 +81,8 @@ void timer_callback(rcl_timer_t * timer, int64_t last_call_time) {
         msg.data.data[0]= millis();
         msg.data.data[1]= robot._wingPosition->desired_left;
         msg.data.data[2]= robot._wingPosition->desired_right;
+        msg.data.data[3]= 0;
+        msg.data.data[4]= 0;
   }
 }
 
