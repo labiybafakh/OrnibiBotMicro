@@ -1,71 +1,71 @@
-#ifdef DEBUG //Remove compiler optimizations for hardware debugging
-#pragma GCC optimize ("O0") 
-#endif
-
 #include <Arduino.h>
 #include <iostream>
 #include "SBUS.hpp"
 #include "OrnibibBot.hpp"
-#include "Communication.hpp"
 #include "INA219.hpp"
-#include "Watchdog_t4.h"
-
-// WDT_T4<EWM> ewm;
-
-SBUS wing_left(&Serial1, true);
-SBUS wing_right(&Serial2, true);
+#include "Communication.hpp"
 
 
-Communication _comm;
 OrnibiBot robot;
+Communication comm;
 
-int targetServo[4];
+// SBUS wing_left(&Serial1, true);
+// SBUS wing_right(&Serial2, true);
 
+IntervalTimer interpolation;
+IntervalTimer sbus;
+IntervalTimer sensor;
+IntervalTimer communication;
 
-void callbackWDT(){
-    digitalToggle(13);
-    Serial.println("Watchdog");
-    // ewm.reset();
+static uint16_t mid_left = 1500;
+static uint16_t mid_right = 1500;
+
+uint16_t time_now, time_last;
+
+void commHandler(){
+    time_now = uint16_t(millis()/1000) - time_last;
+    comm.sendingPacket(time_now);
+    time_last = time_now;
 }
 
-void setup() {
-    Serial.begin(460800);
-    SerialUSB1.begin(115200);
-    // while (!Serial);
-    // Serial.println("TESTING");
+void interpolationHandler(){
+  robot._flappingParam->amplitude = 10;
+  robot._flappingParam->frequency = 3;
+  robot._flappingParam->offset = 0;
 
-    // WDT_timings_t configewm;
-    // configewm.callback = callbackWDT;
-    // configewm.window = 100;
-    // configewm.timeout = 2000;
-    // configewm.pin   = 21;
-    // ewm.begin(configewm);
+  int8_t signal = robot.flappingPattern(sine);
+
+  robot._wingPosition->desired_left = mid_left + signal;
+  robot._wingPosition->desired_right = mid_right + signal;
+
+  if(robot._flappingParam->time < robot.getFlapMs())  robot._flappingParam->time++;
+  else  robot._flappingParam->time = 0;
+}
+
+void sbusHandler(){
+
+    // wing_left.setPosition(robot._wingPosition->desired_left);
+    // wing_right.setPosition(robot._wingPosition->desired_right);
+
+}
+
+void sensorHandler(){
+
+}
+
+
+
+void setup() {
+  // Configure serial transport
+  Serial.begin(460800);
+  while(!Serial);
+
+  interpolation.begin(interpolationHandler, 1000);
+  sbus.begin(sbusHandler, 10000);
+  sensor.begin(sensorHandler, 1000);
+  communication.begin(commHandler, 500);
+
 }
 
 void loop() {
-    robot._flapFreq = 5;
-    robot._amplitude = 30;
-    robot._offset = 0;
-
-    // flapping.setPosition(targetServo);
-    // flapping.sendPosition();
-    targetServo[0] = robot.flappingPattern(sine);
-    targetServo[1] = robot.flappingPattern(sine);
-
-    wing_left.setPosition(targetServo);
-    wing_left.sendPosition();
-
-    wing_right.setPosition(targetServo);
-    wing_right.sendPosition();
-
-    if (robot._time < robot._periode)
-        robot._time++;
-    else
-        robot._time = 0;
-
-    _comm.sendingPacket(&Serial);
-
-    delayMicroseconds(500);
-    // _ornibibot.flaps(1.1f,1);
 }
-

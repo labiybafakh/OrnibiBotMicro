@@ -2,11 +2,16 @@
 
 Communication::Communication()
 {
-    // _serial_dev = serial_com;
+    // Serial.begin(115200);
+    _packetSerial   = (packetData *)malloc(sizeof(packetData));
+    _wingData       = (wingData *)malloc(sizeof(wingData));
 }
 
 Communication::~Communication()
 {
+    free(_packetSerial);
+    free(_wingData);
+
 }
 
 int16_t Communication::encodeFloatToInt(float value)
@@ -19,10 +24,10 @@ float Communication::decodeFloatToInt(int16_t value)
     return value / 100.0f;
 }
 
-unsigned char* Communication::sendingPacket(usb_serial_class* _serial){
-    unsigned char _packet[16];
+unsigned char* Communication::sendingPacket(uint16_t time){
+    uint8_t _packet[16];
     
-    Communication::encodePacket();
+    Communication::encodePacket(time);
 
     _packet[0] = 0xFF;
     _packet[1] = _packetSerial->timestamp & 0xFF;
@@ -42,25 +47,27 @@ unsigned char* Communication::sendingPacket(usb_serial_class* _serial){
     _packet[15] = 0x30;   
 
     //encode the packet into a packet array to send using serial.write
-    _serial->write(_packet, 16);
+    Serial.write(_packet, 16);
 
     return _packet;
 }
 
-void Communication::encodePacket(){
-    _wingLeft->position = 2.33f;
-    _wingLeft->current  = 1.32f;
-    _wingLeft->voltage  = 8.4f;
+void Communication::encodePacket(uint16_t time){
 
-    _wingRight->position = 1.33f;
-    _wingRight->current  = 2.32f;
-    _wingRight->voltage  = 7.4f;
+    _wingData->left.position = 2.33f;
+    _wingData->left.current  = 1.32f;
+    _wingData->left.voltage  = 8.4f;
 
-    _packetSerial->timestamp      = millis();
-    _packetSerial->positionLeft   = encodeFloatToInt(_wingLeft->position);
-    _packetSerial->positionRight  = encodeFloatToInt(_wingRight->position);
-    _packetSerial->currentLeft    = encodeFloatToInt(_wingRight->current);
-    _packetSerial->currentRight   = encodeFloatToInt(_wingRight->current);
-    _packetSerial->voltageLeft    = encodeFloatToInt(_wingLeft->voltage);
-    _packetSerial->voltageRight   = encodeFloatToInt(_wingRight->voltage); 
+    _wingData->right.position = 1.33f;
+    _wingData->right.current  = 2.32f;
+    _wingData->right.voltage  = 7.4f;
+
+    _packetSerial->timestamp      = time;
+    _packetSerial->positionLeft   = encodeFloatToInt(_wingData->left.position);
+    _packetSerial->positionRight  = encodeFloatToInt(_wingData->right.position);
+    _packetSerial->currentLeft    = encodeFloatToInt(_wingData->left.current);
+    _packetSerial->currentRight   = encodeFloatToInt(_wingData->right.current);
+    _packetSerial->voltageLeft    = encodeFloatToInt(_wingData->left.voltage);
+    _packetSerial->voltageRight   = encodeFloatToInt(_wingData->right.voltage); 
+
 }
