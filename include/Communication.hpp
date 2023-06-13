@@ -12,7 +12,9 @@ class Communication
 private:
     typedef struct
     {
-        uint16_t timestamp;    // 2 bytes
+        uint32_t timestamp;    // 4 bytes
+        uint16_t desiredLeft;   // 2 bytes
+        uint16_t desiredRight;  // 2 bytes
         int16_t positionLeft;  // 2 bytes
         int16_t positionRight; // 2 bytes
         int16_t currentLeft;   // 2 bytes
@@ -37,14 +39,17 @@ private:
 
     float decodeFloatToInt(int16_t value);
 
+    static const uint8_t buffer_size = 20;
+
 public:
     Communication();
     ~Communication();
-    unsigned char* sendingPacket(uint16_t time);
-    void encodePacket(uint16_t time);
+    unsigned char* sendingPacket(packetData* raw);
+    void encodePacket(packetData* raw);
 
     wingData *_wingData;
     packetData *_packetSerial;
+    packetData *_raw_data;
 };
 
 #endif
