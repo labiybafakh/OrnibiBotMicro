@@ -32,11 +32,18 @@ private:
   } flappingParameter;
 
   typedef struct{
-    float actual_right;
-    float actual_left;
-    uint16_t desired_right;
-    uint16_t desired_left;
+    volatile float actual_right;
+    volatile float actual_left;
+    volatile uint16_t desired_right;
+    volatile uint16_t desired_left;
   } wingPosition;
+
+  typedef struct{
+    volatile float current_left;
+    volatile float current_right;
+    volatile float voltage_left;
+    volatile float voltage_right;
+  } wingPower;
 
   volatile int16_t sineFlap();
   volatile int16_t squareFlap();
@@ -53,6 +60,7 @@ private:
 public:
   flappingParameter *_flappingParam;
   wingPosition *_wingPosition;
+  wingPower *_wingPower;
 
   tailPosition tail_position;
 

@@ -4,11 +4,13 @@
 OrnibiBot::OrnibiBot(){
     _flappingParam = (flappingParameter *)malloc(sizeof(flappingParameter));
     _wingPosition = (wingPosition *)malloc(sizeof(wingPosition));
+    _wingPower = (wingPower *)malloc(sizeof(wingPower));
 }
 
 OrnibiBot::~OrnibiBot(){
     free(_flappingParam);
     free(_wingPosition);
+    free(_wingPower);
 }
 
 volatile uint16_t OrnibiBot::getFlapMs(){

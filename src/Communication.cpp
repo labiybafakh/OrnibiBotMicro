@@ -6,7 +6,7 @@ Communication::Communication()
     // Serial.begin(115200);
     _packetSerial   = (packetData *)malloc(sizeof(packetData));
     _wingData       = (wingData *)malloc(sizeof(wingData));
-    _raw_data       = (packetData *)malloc(sizeof(packetData));
+    _raw_data       = (rawData *)malloc(sizeof(rawData));
 }
 
 Communication::~Communication()
@@ -27,7 +27,7 @@ float Communication::decodeFloatToInt(int16_t value)
     return value / 100.0f;
 }
 
-unsigned char* Communication::sendingPacket(packetData* raw){
+unsigned char* Communication::sendingPacket(rawData* raw){
     uint8_t _packet[buffer_size];
     
     Communication::encodePacket(raw);
@@ -60,7 +60,7 @@ unsigned char* Communication::sendingPacket(packetData* raw){
     return _packet;
 }
 
-void Communication::encodePacket(packetData* raw)
+void Communication::encodePacket(rawData* raw)
 {
     _packetSerial->timestamp      = raw->timestamp;
     _packetSerial->desiredLeft    = raw->desiredLeft;

@@ -24,9 +24,9 @@ class INA219{
         ~INA219();
         bool begin();
         bool isConnected();
-        int16_t readRegister(uint8_t reg);
-        float getCurrent();
-        float getBusVoltage();
+        volatile int16_t readRegister(uint8_t reg);
+        volatile float getCurrent();
+        volatile float getBusVoltage();
         void writeRegister(uint8_t reg, uint16_t value);
 
 };

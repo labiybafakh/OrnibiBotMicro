@@ -23,6 +23,19 @@ private:
         int16_t voltageRight;  // 2 bytes
     } packetData;
 
+    typedef struct
+    {
+        uint32_t timestamp;    // 4 bytes
+        uint16_t desiredLeft;   // 2 bytes
+        uint16_t desiredRight;  // 2 bytes
+        float positionLeft;  // 2 bytes
+        float positionRight; // 2 bytes
+        float currentLeft;   // 2 bytes
+        float currentRight;  // 2 bytes
+        float voltageLeft;   // 2 bytes
+        float voltageRight;  // 2 bytes
+    } rawData;
+
     struct actuatorData
     {
         float position;
@@ -44,12 +57,13 @@ private:
 public:
     Communication();
     ~Communication();
-    unsigned char* sendingPacket(packetData* raw);
-    void encodePacket(packetData* raw);
+    unsigned char* sendingPacket(rawData* raw);
+    void encodePacket(rawData* raw);
 
     wingData *_wingData;
     packetData *_packetSerial;
-    packetData *_raw_data;
+    // packetData *_raw_data;
+    rawData *_raw_data;
 };
 
 #endif
