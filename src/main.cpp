@@ -4,9 +4,9 @@
 #include <unistd.h>
 #include "SBUS.hpp"
 #include "OrnibibBot.hpp"
-// #include "INA219.hpp"
 #include "Communication.hpp"
 #include "DFRobot_INA219.h"
+#include <string.h>
 
 
 OrnibiBot robot;
@@ -16,13 +16,9 @@ SBUS wing_left(&Serial1, true);
 SBUS wing_right(&Serial2, true);
 
 
-DFRobot_INA219_IIC power_left(&Wire1, 0x40);
-DFRobot_INA219_IIC power_right(&Wire1, 0x44);
-DFRobot_INA219_IIC power_source(&Wire2, 0x40);
-
-// INA219 power_left(0x40, &Wire1);
-// INA219 power_right(0x44, &Wire1);
-// INA219 power_source(0x40, &Wire2);
+DFRobot_INA219_IIC power_left(&Wire1, INA219_I2C_ADDRESS1);
+DFRobot_INA219_IIC power_right(&Wire1, INA219_I2C_ADDRESS3);
+DFRobot_INA219_IIC power_source(&Wire2, INA219_I2C_ADDRESS1);
 
 
 IntervalTimer interpolation;
@@ -81,6 +77,8 @@ void sensorHandler(){
     robot._wingPower->current_right = power_right.getCurrent_mA();
     robot._wingPower->voltage_left  = power_left.getBusVoltage_V();
     robot._wingPower->voltage_right = power_right.getBusVoltage_V();
+
+    // power_left.setMode()
 }
 
 
@@ -101,16 +99,17 @@ void setup() {
 
   interpolation.begin(interpolationHandler, 1000);
   sbus.begin(sbusHandler, 5000);
-  // sensor.begin(sensorHandler, 5000);
-  communication.begin(commHandler, 5000);
+  sensor.begin(sensorHandler, 5000);
+  // communication.begin(commHandler, 5000);
   time_start = millis();
 //   flag_start = 1;
 
 }
 
 void loop() {
-  // Serial.println(power_right.getCurrent_mA());
-  // delay(1000);
+  String data= (String)robot._wingPower->current_left + "\t" + (String)robot._wingPower->current_right + "\t" + (String)robot._wingPower->voltage_left + "\t" + (String)robot._wingPower->voltage_right;
+  Serial.println(data);
+  delay(100);
 
 }
 

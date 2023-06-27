@@ -72,15 +72,3 @@ bool SBUS::sendPosition(uint8_t data[SBUS_BUFFER]){
     //Sending packet data to SBUS
     return serial_dev_->write(data, SBUS_BUFFER);
 }
-
-
-// char *SBUS::get_sbus(){
-//     char header;
-//     char position[4];
-
-//     return _rx_sbus_data;
-// }
-
-// void SBUS::getPosition(){
-    
-// }
