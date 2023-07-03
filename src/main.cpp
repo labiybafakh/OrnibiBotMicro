@@ -8,6 +8,12 @@
 #include "DFRobot_INA219.h"
 #include <string.h>
 
+typedef struct{
+  uint32_t start_time;
+  uint32_t last_time;
+  volatile uint32_t total_time;
+  uint8_t flag;
+} wing_raw_data;
 
 OrnibiBot robot;
 Communication comm;
@@ -26,6 +32,9 @@ IntervalTimer sbus;
 IntervalTimer sensor;
 IntervalTimer communication;
 
+wing_raw_data *p_wing_left_raw;
+wing_raw_data *p_wing_right_raw;
+
 static uint16_t mid_left = 1500;
 static uint16_t mid_right = 1500;
 
@@ -35,6 +44,8 @@ unsigned char flag_run = 0;
 
 float ina219Reading_mA = 1000;
 float extMeterReading_mA = 1000;
+
+
 
 void commHandler(){
 
@@ -77,26 +88,66 @@ void sensorHandler(){
     robot._wingPower->current_right = power_right.getCurrent_mA();
     robot._wingPower->voltage_left  = power_left.getBusVoltage_V();
     robot._wingPower->voltage_right = power_right.getBusVoltage_V();
-
-    // power_left.setMode()
 }
 
+void WingRightIntterupt(){
+  if(digitalReadFast(A8) == HIGH){
+    if(p_wing_right_raw->flag == 0){
+      p_wing_right_raw->start_time = micros();
+      p_wing_right_raw->flag = 1;
+    }
+  }
+  else{
+    if(p_wing_right_raw->flag == 1){
+      p_wing_right_raw->last_time = micros();
+      p_wing_right_raw->total_time = p_wing_right_raw->last_time - p_wing_right_raw->start_time;
+      p_wing_right_raw->flag = 0;
+    }
+  }
+}
+
+void WingLeftIntterupt(){
+  if(digitalReadFast(A9) == HIGH){
+    if(p_wing_left_raw->flag == 0){
+      p_wing_left_raw->start_time = micros();
+      p_wing_left_raw->flag = 1;
+    }
+  }
+  else{
+    if(p_wing_left_raw->flag == 1){
+      p_wing_left_raw->last_time = micros();
+      p_wing_left_raw->total_time = p_wing_left_raw->last_time - p_wing_left_raw->start_time;
+      p_wing_left_raw->flag = 0;
+    }
+  }
+}
 
 void setup() {
   // Configure serial transport
   // Serial.begin(460800);
   Serial.begin(115200);
 
+  pinMode(A8, INPUT);
+  pinMode(A9, INPUT);
+
   power_left.begin();
   power_right.begin();
   power_source.begin();
+
+  p_wing_left_raw = (wing_raw_data *)malloc(sizeof(wing_raw_data));
+  p_wing_right_raw = (wing_raw_data *)malloc(sizeof(wing_raw_data));
+
+  p_wing_left_raw->flag = 0;
+  p_wing_right_raw->flag = 0;
+  
   delay(100);
   power_left.linearCalibrate(ina219Reading_mA, extMeterReading_mA); delay(100);
   power_right.linearCalibrate(ina219Reading_mA, extMeterReading_mA);  delay(100);
   power_source.linearCalibrate(ina219Reading_mA, extMeterReading_mA); delay(100);
 
   while(!Serial);
-
+  attachInterrupt(A8, WingLeftIntterupt, CHANGE);
+  attachInterrupt(A9, WingRightIntterupt, CHANGE);
   interpolation.begin(interpolationHandler, 1000);
   sbus.begin(sbusHandler, 5000);
   sensor.begin(sensorHandler, 5000);
@@ -107,14 +158,7 @@ void setup() {
 }
 
 void loop() {
-  String data= (String)robot._wingPower->current_left + "\t" + (String)robot._wingPower->current_right + "\t" + (String)robot._wingPower->voltage_left + "\t" + (String)robot._wingPower->voltage_right;
+  String data= (String)p_wing_left_raw->total_time + "\t" + (String)p_wing_right_raw->total_time;
   Serial.println(data);
   delay(100);
-
 }
-
-// void serialEvent(){
-//   if(Serial.available()){
-//     flag_run = Serial.read();
-//   }
-// }
