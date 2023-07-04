@@ -93,13 +93,13 @@ void sensorHandler(){
 void WingRightIntterupt(){
   if(digitalReadFast(A8) == HIGH){
     if(p_wing_right_raw->flag == 0){
-      p_wing_right_raw->start_time = micros();
+      p_wing_right_raw->start_time = systick_millis_count;
       p_wing_right_raw->flag = 1;
     }
   }
   else{
     if(p_wing_right_raw->flag == 1){
-      p_wing_right_raw->last_time = micros();
+      p_wing_right_raw->last_time = systick_millis_count;
       p_wing_right_raw->total_time = p_wing_right_raw->last_time - p_wing_right_raw->start_time;
       p_wing_right_raw->flag = 0;
     }
@@ -109,13 +109,13 @@ void WingRightIntterupt(){
 void WingLeftIntterupt(){
   if(digitalReadFast(A9) == HIGH){
     if(p_wing_left_raw->flag == 0){
-      p_wing_left_raw->start_time = micros();
+      p_wing_left_raw->start_time = systick_millis_count;
       p_wing_left_raw->flag = 1;
     }
   }
   else{
     if(p_wing_left_raw->flag == 1){
-      p_wing_left_raw->last_time = micros();
+      p_wing_left_raw->last_time = systick_millis_count;
       p_wing_left_raw->total_time = p_wing_left_raw->last_time - p_wing_left_raw->start_time;
       p_wing_left_raw->flag = 0;
     }
@@ -134,6 +134,7 @@ void setup() {
   power_right.begin();
   power_source.begin();
 
+
   p_wing_left_raw = (wing_raw_data *)malloc(sizeof(wing_raw_data));
   p_wing_right_raw = (wing_raw_data *)malloc(sizeof(wing_raw_data));
 
@@ -148,16 +149,22 @@ void setup() {
   while(!Serial);
   attachInterrupt(A8, WingLeftIntterupt, CHANGE);
   attachInterrupt(A9, WingRightIntterupt, CHANGE);
-  interpolation.begin(interpolationHandler, 1000);
-  sbus.begin(sbusHandler, 5000);
-  sensor.begin(sensorHandler, 5000);
+  // interpolation.begin(interpolationHandler, 1000);
+  // sbus.begin(sbusHandler, 5000);
+  // sensor.begin(sensorHandler, 5000);
   // communication.begin(commHandler, 5000);
-  time_start = millis();
+  // time_start = millis();
 //   flag_start = 1;
 
 }
 
 void loop() {
+  // if(millis()%5==0){
+  //   p_wing_left_raw->start_time = micros();
+  //   p_wing_left_raw->total_time = pulseIn(A8, HIGH);
+  //   p_wing_right_raw->total_time = pulseIn(A9, HIGH);
+  //   p_wing_left_raw->last_time = micros();
+  // }
   String data= (String)p_wing_left_raw->total_time + "\t" + (String)p_wing_right_raw->total_time;
   Serial.println(data);
   delay(100);
