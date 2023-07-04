@@ -9,14 +9,17 @@
 #include <string.h>
 
 typedef struct{
-  uint32_t start_time;
-  uint32_t last_time;
-  volatile uint32_t total_time;
-  uint8_t flag;
+  volatile uint32_t start_time;
+  volatile uint32_t last_time;
+  uint32_t total_time;
+  volatile uint32_t counter;
+  volatile uint8_t flag;
 } wing_raw_data;
 
 OrnibiBot robot;
 Communication comm;
+
+volatile bool test;
 
 SBUS wing_left(&Serial1, true);
 SBUS wing_right(&Serial2, true);
@@ -44,8 +47,6 @@ unsigned char flag_run = 0;
 
 float ina219Reading_mA = 1000;
 float extMeterReading_mA = 1000;
-
-
 
 void commHandler(){
 
@@ -84,57 +85,51 @@ void sbusHandler(){
 }
 
 void sensorHandler(){
-    robot._wingPower->current_left = power_left.getCurrent_mA();
-    robot._wingPower->current_right = power_right.getCurrent_mA();
-    robot._wingPower->voltage_left  = power_left.getBusVoltage_V();
-    robot._wingPower->voltage_right = power_right.getBusVoltage_V();
-}
 
-void WingRightIntterupt(){
-  if(digitalReadFast(A8) == HIGH){
-    if(p_wing_right_raw->flag == 0){
-      p_wing_right_raw->start_time = systick_millis_count;
-      p_wing_right_raw->flag = 1;
-    }
-  }
-  else{
-    if(p_wing_right_raw->flag == 1){
-      p_wing_right_raw->last_time = systick_millis_count;
-      p_wing_right_raw->total_time = p_wing_right_raw->last_time - p_wing_right_raw->start_time;
-      p_wing_right_raw->flag = 0;
-    }
-  }
-}
+  p_wing_left_raw->counter++;
+  p_wing_right_raw->counter++;
 
-void WingLeftIntterupt(){
-  if(digitalReadFast(A9) == HIGH){
+  if(digitalReadFast(23) == LOW) {
     if(p_wing_left_raw->flag == 0){
-      p_wing_left_raw->start_time = systick_millis_count;
+      p_wing_left_raw->total_time = p_wing_left_raw->counter;
       p_wing_left_raw->flag = 1;
+      p_wing_left_raw->counter = 0;
     }
+    else p_wing_left_raw->counter = 0;
   }
-  else{
-    if(p_wing_left_raw->flag == 1){
-      p_wing_left_raw->last_time = systick_millis_count;
-      p_wing_left_raw->total_time = p_wing_left_raw->last_time - p_wing_left_raw->start_time;
-      p_wing_left_raw->flag = 0;
+  else if(digitalReadFast(23) == HIGH){
+   p_wing_left_raw->flag = 0;
+  }
+
+  if(digitalReadFast(22) == LOW) {
+    if(p_wing_right_raw->flag == 0){
+      p_wing_right_raw->total_time = p_wing_right_raw->counter;
+      p_wing_right_raw->flag = 1;
+      p_wing_right_raw->counter = 0;
     }
+    else p_wing_right_raw->counter = 0;
   }
+  else if(digitalReadFast(22) == HIGH){
+   p_wing_right_raw->flag = 0;
+  }
+
 }
 
 void setup() {
   // Configure serial transport
-  // Serial.begin(460800);
-  Serial.begin(115200);
+  Serial.begin(460800);
+  // Serial.begin(115200);
 
-  pinMode(A8, INPUT);
-  pinMode(A9, INPUT);
+  pinMode(22, INPUT);
+  pinMode(23, INPUT);
+  pinMode(21, OUTPUT);
 
   power_left.begin();
   power_right.begin();
   power_source.begin();
-
-
+  
+  // setupGPT1();
+  
   p_wing_left_raw = (wing_raw_data *)malloc(sizeof(wing_raw_data));
   p_wing_right_raw = (wing_raw_data *)malloc(sizeof(wing_raw_data));
 
@@ -147,25 +142,29 @@ void setup() {
   power_source.linearCalibrate(ina219Reading_mA, extMeterReading_mA); delay(100);
 
   while(!Serial);
-  attachInterrupt(A8, WingLeftIntterupt, CHANGE);
-  attachInterrupt(A9, WingRightIntterupt, CHANGE);
-  // interpolation.begin(interpolationHandler, 1000);
-  // sbus.begin(sbusHandler, 5000);
-  // sensor.begin(sensorHandler, 5000);
-  // communication.begin(commHandler, 5000);
-  // time_start = millis();
+  sensor.begin(sensorHandler, 1);
+  sensor.priority(0);
+  interpolation.begin(interpolationHandler, 1000);
+  interpolation.priority(1);
+  sbus.begin(sbusHandler, 5000);
+  sbus.priority(2);
+  communication.begin(commHandler, 5000);
+  communication.priority(3);
+  time_start = millis();
 //   flag_start = 1;
 
 }
 
 void loop() {
-  // if(millis()%5==0){
-  //   p_wing_left_raw->start_time = micros();
-  //   p_wing_left_raw->total_time = pulseIn(A8, HIGH);
-  //   p_wing_right_raw->total_time = pulseIn(A9, HIGH);
-  //   p_wing_left_raw->last_time = micros();
-  // }
-  String data= (String)p_wing_left_raw->total_time + "\t" + (String)p_wing_right_raw->total_time;
-  Serial.println(data);
-  delay(100);
+
+  if(millis()%5==0){
+    robot._wingPower->current_left = power_left.getCurrent_mA();
+    robot._wingPower->current_right = power_right.getCurrent_mA();
+    robot._wingPower->voltage_left  = power_left.getBusVoltage_V();
+    robot._wingPower->voltage_right = power_right.getBusVoltage_V();
+  }
+
+  // String data = (String)robot._wingPower->current_left + "\t" + (String)robot._wingPower->current_right;
+  // Serial.println(data);
+  // delay(5);
 }
