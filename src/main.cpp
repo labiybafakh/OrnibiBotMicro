@@ -60,6 +60,7 @@ void commHandler(){
     comm._raw_data->voltageLeft     = robot._wingPower->voltage_left;
     comm._raw_data->voltageRight    = robot._wingPower->voltage_right;
 
+    // Serial.println(robot._wingPower->current_left);
     comm.sendingPacket(comm._raw_data);
 }
 
@@ -146,7 +147,7 @@ void setup() {
   sensor.priority(0);
   interpolation.begin(interpolationHandler, 1000);
   interpolation.priority(1);
-  sbus.begin(sbusHandler, 5000);
+  sbus.begin(sbusHandler, 10000);
   sbus.priority(2);
   communication.begin(commHandler, 5000);
   communication.priority(3);
