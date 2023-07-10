@@ -44,14 +44,14 @@ unsigned char* Communication::sendingPacket(rawData* raw){
     _packet[9] = (_packetSerial->positionLeft >> 8) & 0xFF;
     _packet[10] = _packetSerial->positionRight & 0xFF;
     _packet[11] = (_packetSerial->positionRight >> 8) & 0xFF;
-    _packet[12] = _packetSerial->currentLeft & 0xFF;
-    _packet[13] = (_packetSerial->currentLeft >> 8) & 0xFF;
-    _packet[14] = _packetSerial->currentRight & 0xFF;
-    _packet[15] = (_packetSerial->currentRight >> 8) & 0xFF;
-    _packet[16] = _packetSerial->voltageLeft & 0xFF;
-    _packet[17] = (_packetSerial->voltageLeft >> 8) & 0xFF;   
-    _packet[18] = _packetSerial->voltageRight & 0xFF;
-    _packet[19] = (_packetSerial->voltageRight >> 8) & 0xFF;  
+    _packet[12] = _packetSerial->powerleft & 0xFF;
+    _packet[13] = (_packetSerial->powerleft >> 8) & 0xFF;
+    _packet[14] = _packetSerial->powerright & 0xFF;
+    _packet[15] = (_packetSerial->powerright >> 8) & 0xFF;
+    // _packet[16] = _packetSerial->voltageLeft & 0xFF;
+    // _packet[17] = (_packetSerial->voltageLeft >> 8) & 0xFF;   
+    // _packet[18] = _packetSerial->voltageRight & 0xFF;
+    // _packet[19] = (_packetSerial->voltageRight >> 8) & 0xFF;  
 
 
     //encode the packet into a packet array to send using serial.write
@@ -67,9 +67,9 @@ void Communication::encodePacket(rawData* raw)
     _packetSerial->desiredRight   = raw->desiredRight;
     _packetSerial->positionLeft   = encodeFloatToInt(raw->positionLeft);
     _packetSerial->positionRight  = encodeFloatToInt(raw->positionRight);
-    _packetSerial->currentLeft    = encodeFloatToInt(raw->currentLeft);
-    _packetSerial->currentRight   = encodeFloatToInt(raw->currentRight);
-    _packetSerial->voltageLeft    = encodeFloatToInt(raw->voltageLeft);
-    _packetSerial->voltageRight   = encodeFloatToInt(raw->voltageRight); 
+    _packetSerial->powerleft    = encodeFloatToInt(raw->powerleft);
+    _packetSerial->powerright   = encodeFloatToInt(raw->powerright);
+    // _packetSerial->voltageLeft    = encodeFloatToInt(raw->voltageLeft);
+    // _packetSerial->voltageRight   = encodeFloatToInt(raw->voltageRight); 
 
 }

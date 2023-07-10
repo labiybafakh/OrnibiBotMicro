@@ -53,12 +53,12 @@ void commHandler(){
     comm._raw_data->timestamp       = (uint32_t)millis()-time_start;
     comm._raw_data->desiredLeft     = robot._wingPosition->desired_left;
     comm._raw_data->desiredRight    = robot._wingPosition->desired_right;
-    comm._raw_data->positionLeft    = robot._wingPosition->actual_left;
-    comm._raw_data->positionRight   = robot._wingPosition->actual_right;
-    comm._raw_data->currentLeft     = robot._wingPower->current_left;
-    comm._raw_data->currentRight    = robot._wingPower->current_right;
-    comm._raw_data->voltageLeft     = robot._wingPower->voltage_left;
-    comm._raw_data->voltageRight    = robot._wingPower->voltage_right;
+    comm._raw_data->positionLeft    = 50;
+    comm._raw_data->positionRight   = 40;
+    comm._raw_data->powerleft     = 20;
+    comm._raw_data->powerright    = 10;
+    // comm._raw_data->voltageLeft     = robot._wingPower->voltage_left;
+    // comm._raw_data->voltageRight    = robot._wingPower->voltage_right;
 
     // Serial.println(robot._wingPower->current_left);
     comm.sendingPacket(comm._raw_data);
@@ -158,14 +158,15 @@ void setup() {
 
 void loop() {
 
-  if(millis()%5==0){
-    robot._wingPower->current_left = power_left.getCurrent_mA();
-    robot._wingPower->current_right = power_right.getCurrent_mA();
-    robot._wingPower->voltage_left  = power_left.getBusVoltage_V();
-    robot._wingPower->voltage_right = power_right.getBusVoltage_V();
-  }
+  // if(millis()%5==0){
+  //   robot._wingPower->current_left = power_left.getCurrent_mA();
+  //   robot._wingPower->current_right = power_right.getCurrent_mA();
+  //   robot._wingPower->voltage_left  = power_left.getBusVoltage_V();
+  //   robot._wingPower->voltage_right = power_right.getBusVoltage_V();
+  //     String data = (String)p_wing_left_raw->total_time + "\t" + (String)p_wing_right_raw->total_time;
+  //     Serial.println(data);
+  // }
 
-  // String data = (String)robot._wingPower->current_left + "\t" + (String)robot._wingPower->current_right;
-  // Serial.println(data);
-  // delay(5);
+
+  // delay(1);
 }

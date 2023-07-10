@@ -17,10 +17,8 @@ private:
         uint16_t desiredRight;  // 2 bytes
         int16_t positionLeft;  // 2 bytes
         int16_t positionRight; // 2 bytes
-        int16_t currentLeft;   // 2 bytes
-        int16_t currentRight;  // 2 bytes
-        int16_t voltageLeft;   // 2 bytes
-        int16_t voltageRight;  // 2 bytes
+        int16_t powerleft;   // 2 bytes
+        int16_t powerright;  // 2 bytes
     } packetData;
 
     typedef struct
@@ -30,10 +28,8 @@ private:
         uint16_t desiredRight;  // 2 bytes
         float positionLeft;  // 2 bytes
         float positionRight; // 2 bytes
-        float currentLeft;   // 2 bytes
-        float currentRight;  // 2 bytes
-        float voltageLeft;   // 2 bytes
-        float voltageRight;  // 2 bytes
+        float powerleft;   // 2 bytes
+        float powerright;  // 2 bytes
     } rawData;
 
     struct actuatorData
@@ -52,7 +48,7 @@ private:
 
     float decodeFloatToInt(int16_t value);
 
-    static const uint8_t buffer_size = 20;
+    static const uint8_t buffer_size = 16;
 
 public:
     Communication();
