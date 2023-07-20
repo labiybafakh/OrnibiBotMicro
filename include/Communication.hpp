@@ -13,28 +13,29 @@ private:
     typedef struct
     {
         uint32_t timestamp;    // 4 bytes
-        uint16_t desiredLeft;   // 2 bytes
-        uint16_t desiredRight;  // 2 bytes
-        int16_t positionLeft;  // 2 bytes
-        int16_t positionRight; // 2 bytes
-        int16_t powerleft;   // 2 bytes
-        int16_t powerright;  // 2 bytes
+        int16_t desired_left;   // 2 bytes
+        int16_t desired_right;  // 2 bytes
+        int16_t actual_left;  // 2 bytes
+        int16_t actual_right; // 2 bytes
+        int16_t power_left;   // 2 bytes
+        int16_t power_right;  // 2 bytes
     } packetData;
 
     typedef struct
     {
         uint32_t timestamp;    // 4 bytes
-        uint16_t desiredLeft;   // 2 bytes
-        uint16_t desiredRight;  // 2 bytes
-        float positionLeft;  // 2 bytes
-        float positionRight; // 2 bytes
-        float powerleft;   // 2 bytes
-        float powerright;  // 2 bytes
+        float desired_left;   // 2 bytes
+        float desired_right;  // 2 bytes
+        float actual_left;  // 2 bytes
+        float actual_right; // 2 bytes
+        float power_left;   // 2 bytes
+        float power_right;  // 2 bytes
     } rawData;
 
     struct actuatorData
     {
         float position;
+        float velocity;
         float current;
         float voltage;
     };

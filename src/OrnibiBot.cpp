@@ -3,14 +3,12 @@
 
 OrnibiBot::OrnibiBot(){
     _flappingParam = (flappingParameter *)malloc(sizeof(flappingParameter));
-    _wingPosition = (wingPosition *)malloc(sizeof(wingPosition));
-    _wingPower = (wingPower *)malloc(sizeof(wingPower));
+    p_wing_data = (wingData *)malloc(sizeof(wingData));
 }
 
 OrnibiBot::~OrnibiBot(){
     free(_flappingParam);
-    free(_wingPosition);
-    free(_wingPower);
+    free(p_wing_data);
 }
 
 volatile uint16_t OrnibiBot::getFlapMs(){
@@ -19,29 +17,29 @@ volatile uint16_t OrnibiBot::getFlapMs(){
   return _periode;
 }
 
-volatile int16_t OrnibiBot::sineFlap(){
-    return (volatile int16_t) (_flappingParam->amplitude * sin(((2*M_PI)/(double)OrnibiBot::getFlapMs() * _flappingParam->time))) + _flappingParam->offset;
+volatile int8_t OrnibiBot::sineFlap(){
+    return (volatile int8_t) (_flappingParam->amplitude * sin(((2*M_PI)/(double)OrnibiBot::getFlapMs() * _flappingParam->time))) + _flappingParam->offset;
 }
 
-volatile int16_t OrnibiBot::squareFlap(){
+volatile int8_t OrnibiBot::squareFlap(){
     double signal = _flappingParam->amplitude * sin(((2*M_PI)/(double)OrnibiBot::getFlapMs() * _flappingParam->time)) + _flappingParam->offset;
     
-    if(signal>0) return _flappingParam->amplitude + _flappingParam->offset;
-    else if(signal==0) return (int)0 + _flappingParam->offset;
-    else return _flappingParam->amplitude*-1 + _flappingParam->offset;
+    if(signal>0) return (volatile int8_t) _flappingParam->amplitude + _flappingParam->offset;
+    else if(signal==0) return (volatile int8_t)0 + _flappingParam->offset;
+    else return (volatile int8_t) _flappingParam->amplitude*-1 + _flappingParam->offset;
 }
 
-volatile int16_t OrnibiBot::sawFlap(){
-    return (2*_flappingParam->amplitude/M_PI) * atan(tan((M_PI*_flappingParam->time)/(double)OrnibiBot::getFlapMs())) + _flappingParam->offset;
+volatile int8_t OrnibiBot::sawFlap(){
+    return (volatile int8_t) (2*_flappingParam->amplitude/M_PI) * atan(tan((M_PI*_flappingParam->time)/(double)OrnibiBot::getFlapMs())) + _flappingParam->offset;
 }
 
-volatile int16_t OrnibiBot::reverse_sawFlap(){
-    return -(2*_flappingParam->amplitude/M_PI) * atan(tan((M_PI*_flappingParam->time)/(double)OrnibiBot::getFlapMs())) + _flappingParam->offset;
+volatile int8_t OrnibiBot::reverse_sawFlap(){
+    return (volatile int8_t) -(2*_flappingParam->amplitude/M_PI) * atan(tan((M_PI*_flappingParam->time)/(double)OrnibiBot::getFlapMs())) + _flappingParam->offset;
 
 }
 
-volatile int16_t OrnibiBot::triangleFlap(){
-    return (2*_flappingParam->amplitude/M_PI) * asin(sin((2*M_PI/(double)OrnibiBot::getFlapMs())*_flappingParam->time)) + _flappingParam->offset;
+volatile int8_t OrnibiBot::triangleFlap(){
+    return (volatile int8_t)(2*_flappingParam->amplitude/M_PI) * asin(sin((2*M_PI/(double)OrnibiBot::getFlapMs())*_flappingParam->time)) + _flappingParam->offset;
 }
 
 volatile int8_t OrnibiBot::flappingPattern(uint8_t pattern){

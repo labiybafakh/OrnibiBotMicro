@@ -13,6 +13,17 @@
 #define rev_saw 4
 #define triangle 5
 
+typedef struct{
+  volatile uint16_t total_time;
+  volatile uint16_t counter;
+  volatile uint8_t flag;
+} wing_raw_data;
+
+enum wing{
+  left = 0,
+  right = 1
+};
+
 class OrnibiBot
 {
 private:
@@ -26,41 +37,36 @@ private:
 
   typedef struct {
     uint8_t offset;
-    uint8_t time;
+    uint16_t time;
     uint8_t amplitude;
+    volatile int8_t signal;
     float frequency;
   } flappingParameter;
 
   typedef struct{
     volatile float actual_right;
     volatile float actual_left;
-    volatile uint16_t desired_right;
-    volatile uint16_t desired_left;
-  } wingPosition;
+    volatile float desired_right;
+    volatile float desired_left;
+    volatile float power_left;
+    volatile float power_right;
+  } wingData;
 
-  typedef struct{
-    volatile float current_left;
-    volatile float current_right;
-    volatile float voltage_left;
-    volatile float voltage_right;
-  } wingPower;
-
-  volatile int16_t sineFlap();
-  volatile int16_t squareFlap();
-  volatile int16_t sawFlap();
-  volatile int16_t triangleFlap();
-  volatile int16_t reverse_sawFlap();
-  // uint32_t getRawPosition(uint8_t pin);
-  // double getPositioninRadians(uint8_t pin);
-  // double getPositioninDegrees(uint8_t pin);
+  volatile int8_t sineFlap();
+  volatile int8_t squareFlap();
+  volatile int8_t sawFlap();
+  volatile int8_t triangleFlap();
+  volatile int8_t reverse_sawFlap();
+  uint32_t getRawPosition();
+  double getPositioninRadians();
+  int8_t getPositioninDegrees();
 
   volatile uint16_t _periode;
   volatile uint16_t _flapping;
 
 public:
   flappingParameter *_flappingParam;
-  wingPosition *_wingPosition;
-  wingPower *_wingPower;
+  wingData *p_wing_data;
 
   tailPosition tail_position;
 

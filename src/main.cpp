@@ -2,24 +2,20 @@
 #include <iostream>
 #include <memory>
 #include <unistd.h>
+#include <math.h>
 #include "SBUS.hpp"
 #include "OrnibibBot.hpp"
 #include "Communication.hpp"
 #include "DFRobot_INA219.h"
 #include <string.h>
+#define LEFT 0
+#define RIGHT 1
 
-typedef struct{
-  volatile uint32_t start_time;
-  volatile uint32_t last_time;
-  uint32_t total_time;
-  volatile uint32_t counter;
-  volatile uint8_t flag;
-} wing_raw_data;
+uint32_t previous_time;
+uint32_t current_time;
 
 OrnibiBot robot;
 Communication comm;
-
-volatile bool test;
 
 SBUS wing_left(&Serial1, true);
 SBUS wing_right(&Serial2, true);
@@ -29,7 +25,6 @@ DFRobot_INA219_IIC power_left(&Wire1, INA219_I2C_ADDRESS1);
 DFRobot_INA219_IIC power_right(&Wire1, INA219_I2C_ADDRESS3);
 DFRobot_INA219_IIC power_source(&Wire2, INA219_I2C_ADDRESS1);
 
-
 IntervalTimer interpolation;
 IntervalTimer sbus;
 IntervalTimer sensor;
@@ -38,8 +33,8 @@ IntervalTimer communication;
 wing_raw_data *p_wing_left_raw;
 wing_raw_data *p_wing_right_raw;
 
-static uint16_t mid_left = 1500;
-static uint16_t mid_right = 1500;
+// static uint16_t mid_left = 1500;
+// static uint16_t mid_right = 1500;
 
 uint32_t time_start;
 bool flag_start=0;
@@ -48,31 +43,49 @@ unsigned char flag_run = 0;
 float ina219Reading_mA = 1000;
 float extMeterReading_mA = 1000;
 
+int8_t WingPositionDeg(uint8_t wing_, volatile uint16_t& pulse_data){
+  if(wing_ == left ) return (int8_t) ((702 - pulse_data) / 2.557f); 
+  else return (int8_t) -1 * ((637 - pulse_data) / 2.428f) ; 
+}
+
+float WingPositionRads(uint8_t wing_, volatile uint16_t& pulse_data){
+  return (float) WingPositionDeg(wing_, pulse_data) * 0.0174533f;
+}
+
+float DegToRads(volatile int8_t degree){
+  return (float) degree * (M_PI/180.0f);
+}
+
+
+
 void commHandler(){
 
-    comm._raw_data->timestamp       = (uint32_t)millis()-time_start;
-    comm._raw_data->desiredLeft     = robot._wingPosition->desired_left;
-    comm._raw_data->desiredRight    = robot._wingPosition->desired_right;
-    comm._raw_data->positionLeft    = 50;
-    comm._raw_data->positionRight   = 40;
-    comm._raw_data->powerleft     = 20;
-    comm._raw_data->powerright    = 10;
-    // comm._raw_data->voltageLeft     = robot._wingPower->voltage_left;
-    // comm._raw_data->voltageRight    = robot._wingPower->voltage_right;
+    comm._raw_data->timestamp             = (uint32_t)millis()-time_start;
+    comm._raw_data->desired_left          = robot.p_wing_data->desired_left;
+    comm._raw_data->desired_right         = robot.p_wing_data->desired_right;
+    comm._raw_data->actual_left           = (float)WingPositionRads(left, p_wing_left_raw->total_time);
+    comm._raw_data->actual_right          = (float)WingPositionRads(right, p_wing_right_raw->total_time);
+    comm._raw_data->power_left            = robot.p_wing_data->power_left;
+    comm._raw_data->power_right           = robot.p_wing_data->power_right;
 
-    // Serial.println(robot._wingPower->current_left);
     comm.sendingPacket(comm._raw_data);
+
+    // String data = (String)(static_cast<int16_t>(WingPositionRads(left, p_wing_left_raw->total_time)*100)) + "\t" + (String)(static_cast<int16_t>(WingPositionRads(right, p_wing_right_raw->total_time)*100));
+    // Serial.println(data);
 }
 
 void interpolationHandler(){
-  robot._flappingParam->amplitude = 60;
-  robot._flappingParam->frequency = 0.5;
-  robot._flappingParam->offset = 0;
+  robot._flappingParam->amplitude = 30;
+  robot._flappingParam->frequency = 4;
+  robot._flappingParam->offset = 10;
 
-  int8_t signal = robot.flappingPattern(sine);
+  robot._flappingParam->signal = robot.flappingPattern(sine);
 
-  robot._wingPosition->desired_left = wing_left.degToSignal(signal);
-  robot._wingPosition->desired_right = wing_right.degToSignal(-signal);
+  robot.p_wing_data->desired_left = DegToRads(robot._flappingParam->signal);
+  robot.p_wing_data->desired_right = DegToRads(robot._flappingParam->signal);
+  
+  // robot.p_wing_data->desired_left = wing_left.degToSignal(signal);
+  // robot.p_wing_data->desired_right = wing_right.degToSignal(-signal);
 
   if(robot._flappingParam->time < robot.getFlapMs())  robot._flappingParam->time++;
   else  robot._flappingParam->time = 0;
@@ -80,8 +93,10 @@ void interpolationHandler(){
 
 void sbusHandler(){
 
-    wing_left.setPosition(robot._wingPosition->desired_left);
-    wing_right.setPosition(robot._wingPosition->desired_right);
+    wing_left.setPosition(wing_left.degToSignal(robot._flappingParam->signal));
+    wing_right.setPosition(wing_right.degToSignal(-robot._flappingParam->signal));
+    // wing_left.setPosition(1500);
+    // wing_right.setPosition(1500);
 
 }
 
@@ -158,15 +173,17 @@ void setup() {
 
 void loop() {
 
-  // if(millis()%5==0){
-  //   robot._wingPower->current_left = power_left.getCurrent_mA();
-  //   robot._wingPower->current_right = power_right.getCurrent_mA();
-  //   robot._wingPower->voltage_left  = power_left.getBusVoltage_V();
-  //   robot._wingPower->voltage_right = power_right.getBusVoltage_V();
-  //     String data = (String)p_wing_left_raw->total_time + "\t" + (String)p_wing_right_raw->total_time;
-  //     Serial.println(data);
-  // }
+  current_time = millis();
+  
+  if((current_time - previous_time) > 5 ){
+    robot.p_wing_data->power_left = power_left.getPower_mW();
+    robot.p_wing_data->power_right = power_right.getPower_mW();
 
+    previous_time = current_time;
+  }
 
-  // delay(1);
 }
+
+// void serialEvent(){
+//   if(Serial.available())
+// }

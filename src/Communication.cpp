@@ -19,7 +19,7 @@ Communication::~Communication()
 
 int16_t Communication::encodeFloatToInt(float value)
 {
-    return static_cast<int16_t>(value * 100.0f);
+    return (int16_t)(value * 100);
 }
 
 float Communication::decodeFloatToInt(int16_t value)
@@ -36,18 +36,18 @@ unsigned char* Communication::sendingPacket(rawData* raw){
     _packet[1] = (_packetSerial->timestamp >> 8) & 0xFF;
     _packet[2] = (_packetSerial->timestamp >> 16) & 0xFF;
     _packet[3] = (_packetSerial->timestamp >> 24) & 0xFF;
-    _packet[4] = _packetSerial->desiredLeft & 0xFF;
-    _packet[5] = (_packetSerial->desiredLeft >> 8) & 0xFF;
-    _packet[6] = _packetSerial->desiredRight & 0xFF;
-    _packet[7] = (_packetSerial->desiredRight >> 8) & 0xFF;
-    _packet[8] = _packetSerial->positionLeft & 0xFF;
-    _packet[9] = (_packetSerial->positionLeft >> 8) & 0xFF;
-    _packet[10] = _packetSerial->positionRight & 0xFF;
-    _packet[11] = (_packetSerial->positionRight >> 8) & 0xFF;
-    _packet[12] = _packetSerial->powerleft & 0xFF;
-    _packet[13] = (_packetSerial->powerleft >> 8) & 0xFF;
-    _packet[14] = _packetSerial->powerright & 0xFF;
-    _packet[15] = (_packetSerial->powerright >> 8) & 0xFF;
+    _packet[4] = _packetSerial->desired_left & 0xFF;
+    _packet[5] = (_packetSerial->desired_left >> 8) & 0xFF;
+    _packet[6] = _packetSerial->desired_right & 0xFF;
+    _packet[7] = (_packetSerial->desired_right >> 8) & 0xFF;
+    _packet[8] = _packetSerial->actual_left & 0xFF;
+    _packet[9] = (_packetSerial->actual_left >> 8) & 0xFF;
+    _packet[10] = _packetSerial->actual_right & 0xFF;
+    _packet[11] = (_packetSerial->actual_right >> 8) & 0xFF;
+    _packet[12] = _packetSerial->power_left & 0xFF;
+    _packet[13] = (_packetSerial->power_left >> 8) & 0xFF;
+    _packet[14] = _packetSerial->power_right & 0xFF;
+    _packet[15] = (_packetSerial->power_right >> 8) & 0xFF;
     // _packet[16] = _packetSerial->voltageLeft & 0xFF;
     // _packet[17] = (_packetSerial->voltageLeft >> 8) & 0xFF;   
     // _packet[18] = _packetSerial->voltageRight & 0xFF;
@@ -63,12 +63,12 @@ unsigned char* Communication::sendingPacket(rawData* raw){
 void Communication::encodePacket(rawData* raw)
 {
     _packetSerial->timestamp      = raw->timestamp;
-    _packetSerial->desiredLeft    = raw->desiredLeft;
-    _packetSerial->desiredRight   = raw->desiredRight;
-    _packetSerial->positionLeft   = encodeFloatToInt(raw->positionLeft);
-    _packetSerial->positionRight  = encodeFloatToInt(raw->positionRight);
-    _packetSerial->powerleft    = encodeFloatToInt(raw->powerleft);
-    _packetSerial->powerright   = encodeFloatToInt(raw->powerright);
+    _packetSerial->desired_left    = encodeFloatToInt(raw->desired_left);
+    _packetSerial->desired_right   = encodeFloatToInt(raw->desired_right);
+    _packetSerial->actual_left   = encodeFloatToInt(raw->actual_left);
+    _packetSerial->actual_right  = encodeFloatToInt(raw->actual_right);
+    _packetSerial->power_left    = encodeFloatToInt(raw->power_left);
+    _packetSerial->power_right   = encodeFloatToInt(raw->power_right);
     // _packetSerial->voltageLeft    = encodeFloatToInt(raw->voltageLeft);
     // _packetSerial->voltageRight   = encodeFloatToInt(raw->voltageRight); 
 
