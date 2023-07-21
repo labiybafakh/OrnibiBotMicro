@@ -48,7 +48,7 @@ int8_t WingPositionDeg(uint8_t wing_, volatile uint16_t& pulse_data){
   else return (int8_t) -1 * ((637 - pulse_data) / 2.428f) ; 
 }
 
-float WingPositionRads(uint8_t wing_, volatile uint16_t& pulse_data){
+volatile float WingPositionRads(uint8_t wing_, volatile uint16_t& pulse_data){
   return (float) WingPositionDeg(wing_, pulse_data) * 0.0174533f;
 }
 
@@ -63,8 +63,8 @@ void commHandler(){
     comm._raw_data->timestamp             = (uint32_t)millis()-time_start;
     comm._raw_data->desired_left          = robot.p_wing_data->desired_left;
     comm._raw_data->desired_right         = robot.p_wing_data->desired_right;
-    comm._raw_data->actual_left           = (float)WingPositionRads(left, p_wing_left_raw->total_time);
-    comm._raw_data->actual_right          = (float)WingPositionRads(right, p_wing_right_raw->total_time);
+    comm._raw_data->actual_left           = robot.p_wing_data->actual_left;
+    comm._raw_data->actual_right          = robot.p_wing_data->actual_right;
     comm._raw_data->power_left            = robot.p_wing_data->power_left;
     comm._raw_data->power_right           = robot.p_wing_data->power_right;
 
@@ -76,16 +76,15 @@ void commHandler(){
 
 void interpolationHandler(){
   robot._flappingParam->amplitude = 30;
-  robot._flappingParam->frequency = 4;
+  robot._flappingParam->frequency = 5;
   robot._flappingParam->offset = 10;
 
+  // robot._flappingParam->signal = 0;
   robot._flappingParam->signal = robot.flappingPattern(sine);
+
 
   robot.p_wing_data->desired_left = DegToRads(robot._flappingParam->signal);
   robot.p_wing_data->desired_right = DegToRads(robot._flappingParam->signal);
-  
-  // robot.p_wing_data->desired_left = wing_left.degToSignal(signal);
-  // robot.p_wing_data->desired_right = wing_right.degToSignal(-signal);
 
   if(robot._flappingParam->time < robot.getFlapMs())  robot._flappingParam->time++;
   else  robot._flappingParam->time = 0;
@@ -95,8 +94,8 @@ void sbusHandler(){
 
     wing_left.setPosition(wing_left.degToSignal(robot._flappingParam->signal));
     wing_right.setPosition(wing_right.degToSignal(-robot._flappingParam->signal));
-    // wing_left.setPosition(1500);
-    // wing_right.setPosition(1500);
+    // wing_left.setPosition(wing);
+    // wing_right.setPosition(iter);
 
 }
 
@@ -162,7 +161,7 @@ void setup() {
   sensor.priority(0);
   interpolation.begin(interpolationHandler, 1000);
   interpolation.priority(1);
-  sbus.begin(sbusHandler, 10000);
+  sbus.begin(sbusHandler, 5000);
   sbus.priority(2);
   communication.begin(commHandler, 5000);
   communication.priority(3);
@@ -178,6 +177,8 @@ void loop() {
   if((current_time - previous_time) > 5 ){
     robot.p_wing_data->power_left = power_left.getPower_mW();
     robot.p_wing_data->power_right = power_right.getPower_mW();
+    robot.p_wing_data->actual_left = WingPositionRads(left, p_wing_left_raw->total_time);
+    robot.p_wing_data->actual_right = WingPositionRads(right, p_wing_right_raw->total_time);
 
     previous_time = current_time;
   }

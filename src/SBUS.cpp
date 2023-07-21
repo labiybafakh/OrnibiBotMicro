@@ -23,7 +23,7 @@ uint16_t SBUS::degToSignal(int8_t pos){
     if(pos>60)         pos=60;
     else if(pos<-60)   pos=-60;
 
-    return (uint16_t)(1520 - (-pos*10)); //reversed to adjust upstroke-downstroke
+    return (uint16_t)(1023 - (-pos*17)); //reversed to adjust upstroke-downstroke
 }
 // bool SBUS::setPosition(uint16_t pos[]){
 //     //Convert Position in degree to signal
@@ -55,17 +55,13 @@ bool SBUS::setPosition(uint16_t pos){
 
     // Encode Servo Position for channel 0 into a packet data
     packet_sbus[0] = 0x0F;  // Start byte
-    packet_sbus[1] = pos & 0xFF;  // Lower 8 bits of channel 0
-    packet_sbus[2] = (pos >> 8) & 0x07;  // Upper 3 bits of channel 0
+    packet_sbus[1] = (uint8_t)(pos & 0xFF);  // Lower 8 bits of channel 0
+    packet_sbus[2] = (uint8_t)((pos >> 8) & 0x07);  // Upper 3 bits of channel 0
     // Stop byte(s) can be set according to the specifics of your receiver
     packet_sbus[23] = 0x00;
     packet_sbus[24] = 0x00;
 
-    if(pos < 1023 || pos > 2047) {
-        return 0;
-    }
-    else
-        return sendPosition(packet_sbus);
+    return sendPosition(packet_sbus);
 }
 
 bool SBUS::sendPosition(uint8_t data[SBUS_BUFFER]){
