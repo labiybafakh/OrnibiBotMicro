@@ -70,17 +70,17 @@ void commHandler(){
 
     comm.sendingPacket(comm._raw_data);
 
-    // String data = (String)(static_cast<int16_t>(WingPositionRads(left, p_wing_left_raw->total_time)*100)) + "\t" + (String)(static_cast<int16_t>(WingPositionRads(right, p_wing_right_raw->total_time)*100));
+    // String data = (String)robot.p_wing_data->power_left + "\t" + (String)robot.p_wing_data->power_right;
     // Serial.println(data);
 }
 
 void interpolationHandler(){
   robot._flappingParam->amplitude = 30;
-  robot._flappingParam->frequency = 5;
-  robot._flappingParam->offset = 10;
+  robot._flappingParam->frequency = 3.5;
+  robot._flappingParam->offset = 20;
 
   // robot._flappingParam->signal = 0;
-  robot._flappingParam->signal = robot.flappingPattern(sine);
+  robot._flappingParam->signal = robot.flappingPattern(square);
 
 
   robot.p_wing_data->desired_left = DegToRads(robot._flappingParam->signal);
@@ -94,6 +94,8 @@ void sbusHandler(){
 
     wing_left.setPosition(wing_left.degToSignal(robot._flappingParam->signal));
     wing_right.setPosition(wing_right.degToSignal(-robot._flappingParam->signal));
+    //     wing_left.setPosition(wing_left.degToSignal(0));
+    // wing_right.setPosition(wing_right.degToSignal(0));
     // wing_left.setPosition(wing);
     // wing_right.setPosition(iter);
 
@@ -175,8 +177,8 @@ void loop() {
   current_time = millis();
   
   if((current_time - previous_time) > 5 ){
-    robot.p_wing_data->power_left = power_left.getPower_mW();
-    robot.p_wing_data->power_right = power_right.getPower_mW();
+    robot.p_wing_data->power_left = (float) power_left.getPower_mW() * 0.62f * 0.001f;
+    robot.p_wing_data->power_right = (float) power_right.getPower_mW() * 0.62f * 0.001f;
     robot.p_wing_data->actual_left = WingPositionRads(left, p_wing_left_raw->total_time);
     robot.p_wing_data->actual_right = WingPositionRads(right, p_wing_right_raw->total_time);
 

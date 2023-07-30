@@ -22,10 +22,10 @@ volatile int8_t OrnibiBot::sineFlap(){
 }
 
 volatile int8_t OrnibiBot::squareFlap(){
-    double signal = _flappingParam->amplitude * sin(((2*M_PI)/(double)OrnibiBot::getFlapMs() * _flappingParam->time)) + _flappingParam->offset;
+    uint8_t signal =  (uint8_t) _flappingParam->amplitude * sin(((2*M_PI)/(double)OrnibiBot::getFlapMs() * _flappingParam->time));
     
     if(signal>0) return (volatile int8_t) _flappingParam->amplitude + _flappingParam->offset;
-    else if(signal==0) return (volatile int8_t)0 + _flappingParam->offset;
+    // else if(signal==0) return (volatile int8_t)0 + _flappingParam->offset;
     else return (volatile int8_t) _flappingParam->amplitude*-1 + _flappingParam->offset;
 }
 
