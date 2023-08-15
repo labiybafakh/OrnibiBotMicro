@@ -7,9 +7,18 @@
 #include "OrnibibBot.hpp"
 #include "Communication.hpp"
 #include "DFRobot_INA219.h"
+#include "ams.h"
 #include <string.h>
 #define LEFT 0
 #define RIGHT 1
+
+#define ADDRESS_1 (0x41)
+#define ADDRESS_2 (0x43)
+
+enum encoder_mode{
+  degree=3,
+  radian=4
+};
 
 uint32_t previous_time;
 uint32_t current_time;
@@ -20,6 +29,8 @@ Communication comm;
 SBUS wing_left(&Serial1, true);
 SBUS wing_right(&Serial2, true);
 
+AMS_AS5048B encoder_left(ADDRESS_1);
+AMS_AS5048B encoder_right(ADDRESS_2);
 
 DFRobot_INA219_IIC power_left(&Wire1, INA219_I2C_ADDRESS1);
 DFRobot_INA219_IIC power_right(&Wire1, INA219_I2C_ADDRESS3);
@@ -56,6 +67,19 @@ float DegToRads(volatile int8_t degree){
   return (float) degree * (M_PI/180.0f);
 }
 
+float Convert180AndRads(volatile float degree){
+  float converted_degree;
+
+  if(degree > 180)
+    converted_degree = degree - 360;
+  else
+    converted_degree = degree;
+
+  converted_degree = converted_degree * (M_PI/180.f);
+
+  return converted_degree;
+}
+
 
 
 void commHandler(){
@@ -70,17 +94,17 @@ void commHandler(){
 
     comm.sendingPacket(comm._raw_data);
 
-    // String data = (String)robot.p_wing_data->power_left + "\t" + (String)robot.p_wing_data->power_right;
+    // String data = (String)robot.p_wing_data->actual_left + "\t" + (String)robot.p_wing_data->actual_right;
     // Serial.println(data);
 }
 
 void interpolationHandler(){
   robot._flappingParam->amplitude = 30;
-  robot._flappingParam->frequency = 3.5;
+  robot._flappingParam->frequency = 0.5;
   robot._flappingParam->offset = 20;
 
   // robot._flappingParam->signal = 0;
-  robot._flappingParam->signal = robot.flappingPattern(square);
+  robot._flappingParam->signal = robot.flappingPattern(sine);
 
 
   robot.p_wing_data->desired_left = DegToRads(robot._flappingParam->signal);
@@ -102,34 +126,8 @@ void sbusHandler(){
 }
 
 void sensorHandler(){
-
-  p_wing_left_raw->counter++;
-  p_wing_right_raw->counter++;
-
-  if(digitalReadFast(23) == LOW) {
-    if(p_wing_left_raw->flag == 0){
-      p_wing_left_raw->total_time = p_wing_left_raw->counter;
-      p_wing_left_raw->flag = 1;
-      p_wing_left_raw->counter = 0;
-    }
-    else p_wing_left_raw->counter = 0;
-  }
-  else if(digitalReadFast(23) == HIGH){
-   p_wing_left_raw->flag = 0;
-  }
-
-  if(digitalReadFast(22) == LOW) {
-    if(p_wing_right_raw->flag == 0){
-      p_wing_right_raw->total_time = p_wing_right_raw->counter;
-      p_wing_right_raw->flag = 1;
-      p_wing_right_raw->counter = 0;
-    }
-    else p_wing_right_raw->counter = 0;
-  }
-  else if(digitalReadFast(22) == HIGH){
-   p_wing_right_raw->flag = 0;
-  }
-
+    robot.p_wing_data->actual_left = Convert180AndRads(encoder_left.angleR(degree, true));
+    robot.p_wing_data->actual_right = Convert180AndRads(encoder_right.angleR(degree, true));
 }
 
 void setup() {
@@ -145,8 +143,9 @@ void setup() {
   power_right.begin();
   power_source.begin();
   
-  // setupGPT1();
-  
+  encoder_left.begin();
+  encoder_right.begin();
+
   p_wing_left_raw = (wing_raw_data *)malloc(sizeof(wing_raw_data));
   p_wing_right_raw = (wing_raw_data *)malloc(sizeof(wing_raw_data));
 
@@ -159,7 +158,11 @@ void setup() {
   power_source.linearCalibrate(ina219Reading_mA, extMeterReading_mA); delay(100);
 
   while(!Serial);
-  sensor.begin(sensorHandler, 1);
+
+  // encoder_right.setZeroReg();
+  // encoder_left.setZeroReg();
+
+  sensor.begin(sensorHandler, 5000);
   sensor.priority(0);
   interpolation.begin(interpolationHandler, 1000);
   interpolation.priority(1);
@@ -177,8 +180,7 @@ void loop() {
   current_time = millis();
   
   if((current_time - previous_time) > 5 ){
-    robot.p_wing_data->power_left = (float) power_left.getPower_mW() * 0.62f * 0.001f;
-    robot.p_wing_data->power_right = (float) power_right.getPower_mW() * 0.62f * 0.001f;
+
     robot.p_wing_data->actual_left = WingPositionRads(left, p_wing_left_raw->total_time);
     robot.p_wing_data->actual_right = WingPositionRads(right, p_wing_right_raw->total_time);
 
@@ -186,7 +188,3 @@ void loop() {
   }
 
 }
-
-// void serialEvent(){
-//   if(Serial.available())
-// }
