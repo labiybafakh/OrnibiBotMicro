@@ -41,6 +41,7 @@ private:
     uint8_t amplitude;
     volatile int8_t signal;
     float frequency;
+    uint8_t rolling;
   } flappingParameter;
 
   typedef struct{

@@ -53,6 +53,11 @@ unsigned char flag_run = 0;
 
 float ina219Reading_mA = 1000;
 float extMeterReading_mA = 1000;
+float mid_left = 267.7;
+float mid_right = 261.7; 
+bool flag_stop_frequency = 0;
+
+uint16_t timer_frequency=0;
 
 int8_t WingPositionDeg(uint8_t wing_, volatile uint16_t& pulse_data){
   if(wing_ == left ) return (int8_t) ((702 - pulse_data) / 2.557f); 
@@ -63,21 +68,8 @@ volatile float WingPositionRads(uint8_t wing_, volatile uint16_t& pulse_data){
   return (float) WingPositionDeg(wing_, pulse_data) * 0.0174533f;
 }
 
-float DegToRads(volatile int8_t degree){
+float DegToRads(volatile float degree){
   return (float) degree * (M_PI/180.0f);
-}
-
-float Convert180AndRads(volatile float degree){
-  float converted_degree;
-
-  if(degree > 180)
-    converted_degree = degree - 360;
-  else
-    converted_degree = degree;
-
-  converted_degree = converted_degree * (M_PI/180.f);
-
-  return converted_degree;
 }
 
 
@@ -100,8 +92,9 @@ void commHandler(){
 
 void interpolationHandler(){
   robot._flappingParam->amplitude = 30;
-  robot._flappingParam->frequency = 0.5;
+  // robot._flappingParam->frequency = 1;
   robot._flappingParam->offset = 20;
+  robot._flappingParam->rolling = 0;
 
   // robot._flappingParam->signal = 0;
   robot._flappingParam->signal = robot.flappingPattern(sine);
@@ -112,13 +105,25 @@ void interpolationHandler(){
 
   if(robot._flappingParam->time < robot.getFlapMs())  robot._flappingParam->time++;
   else  robot._flappingParam->time = 0;
+
+  if(timer_frequency < 1000 && !flag_stop_frequency) timer_frequency++;
+  else{
+    if(robot._flappingParam->frequency >= 10){
+      flag_stop_frequency = 1;
+      robot._flappingParam->frequency = 0;
+    }
+    else if(!flag_stop_frequency){
+      robot._flappingParam->frequency++;
+    }
+    timer_frequency = 0;
+  }
 }
 
 void sbusHandler(){
 
-    wing_left.setPosition(wing_left.degToSignal(robot._flappingParam->signal));
-    wing_right.setPosition(wing_right.degToSignal(-robot._flappingParam->signal));
-    //     wing_left.setPosition(wing_left.degToSignal(0));
+    wing_left.setPosition(wing_left.degToSignal(robot._flappingParam->signal - robot._flappingParam->rolling));
+    wing_right.setPosition(wing_right.degToSignal(-robot._flappingParam->signal) + robot._flappingParam->rolling);
+    // wing_left.setPosition(wing_left.degToSignal(0));
     // wing_right.setPosition(wing_right.degToSignal(0));
     // wing_left.setPosition(wing);
     // wing_right.setPosition(iter);
@@ -126,14 +131,17 @@ void sbusHandler(){
 }
 
 void sensorHandler(){
-    robot.p_wing_data->actual_left = Convert180AndRads(encoder_left.angleR(degree, true));
-    robot.p_wing_data->actual_right = Convert180AndRads(encoder_right.angleR(degree, true));
+    robot.p_wing_data->actual_left = DegToRads(encoder_left.angleR(degree, true) - mid_left) * -1;
+    robot.p_wing_data->actual_right = DegToRads(encoder_right.angleR(degree, true) - mid_right);
 }
 
 void setup() {
   // Configure serial transport
   Serial.begin(460800);
-  // Serial.begin(115200);
+  
+  wing_left.setPosition(wing_left.degToSignal(0));
+  wing_right.setPosition(wing_right.degToSignal(0));
+  delay(1000);
 
   pinMode(22, INPUT);
   pinMode(23, INPUT);
@@ -159,8 +167,7 @@ void setup() {
 
   while(!Serial);
 
-  // encoder_right.setZeroReg();
-  // encoder_left.setZeroReg();
+  delay(5000);
 
   sensor.begin(sensorHandler, 5000);
   sensor.priority(0);
@@ -180,11 +187,20 @@ void loop() {
   current_time = millis();
   
   if((current_time - previous_time) > 5 ){
-
-    robot.p_wing_data->actual_left = WingPositionRads(left, p_wing_left_raw->total_time);
-    robot.p_wing_data->actual_right = WingPositionRads(right, p_wing_right_raw->total_time);
+    robot.p_wing_data->power_left = (float) power_left.getPower_mW() * 0.62f * 0.001f;
+    robot.p_wing_data->power_right = (float) power_right.getPower_mW() * 0.62f * 0.001f;
 
     previous_time = current_time;
+    // Serial.println(robot._flappingParam->frequency);
   }
 
+}
+
+void serialEvent(){
+  while(Serial.available()>3){
+    uint8_t received_data = Serial.read();
+
+    if(received_data > 100 && received_data < 200) robot._flappingParam->frequency = (received_data - 100) * 0.1; 
+
+  }
 }
