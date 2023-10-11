@@ -47,7 +47,7 @@ volatile int8_t OrnibiBot::flappingPattern(uint8_t pattern){
     else if(pattern==triangle) return OrnibiBot::triangleFlap();
     else if(pattern==square) return OrnibiBot::squareFlap();
     else if(pattern==saw) return OrnibiBot::sawFlap();
-    else if(pattern==rev_saw) return OrnibiBot::reverse_sawFlap();
+    else if(pattern==reverse_saw) return OrnibiBot::reverse_sawFlap();
 }
 
 // double OrnibiBot::getRawPosition(uint8_t pin){

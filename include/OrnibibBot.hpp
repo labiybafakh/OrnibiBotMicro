@@ -7,11 +7,19 @@
 #include <string.h>
 #include "SBUS.hpp"
 
-#define sine 1
-#define square 2
-#define saw 3
-#define rev_saw 4
-#define triangle 5
+// #define sine 1
+// #define square 2
+// #define saw 3
+// #define rev_saw 4
+// #define triangle 5
+
+enum flapping_pattern{
+  sine = 1,
+  square = 3,
+  triangle = 5,
+  saw = 7,
+  reverse_saw = 9
+};
 
 typedef struct{
   volatile uint16_t total_time;
@@ -42,6 +50,7 @@ private:
     volatile int8_t signal;
     float frequency;
     uint8_t rolling;
+    uint8_t pattern;
   } flappingParameter;
 
   typedef struct{
