@@ -99,46 +99,29 @@ void commHandler(){
 
 void interpolationHandler(){
   robot._flappingParam->amplitude = 30;
-  // robot._flappingParam->frequency = 1;
   robot._flappingParam->offset = 20;
   robot._flappingParam->rolling = 0;
 
   // robot._flappingParam->signal = 0;
-  robot._flappingParam->signal = robot.flappingPattern(robot._flappingParam->pattern);
-
-
-  robot.p_wing_data->desired_left = DegToRads(robot._flappingParam->signal);
-  robot.p_wing_data->desired_right = DegToRads(robot._flappingParam->signal);
+  if(robot._flappingParam->frequency > 0.01f){
+    robot._flappingParam->signal = robot.flappingPattern(robot._flappingParam->pattern);
+    robot.p_wing_data->desired_left = DegToRads(robot._flappingParam->signal - robot._flappingParam->rolling);
+    robot.p_wing_data->desired_right = DegToRads(robot._flappingParam->signal + robot._flappingParam->rolling);
+  }
+  else{
+    robot._flappingParam->signal = 0;
+    robot.p_wing_data->desired_left = DegToRads(0);
+    robot.p_wing_data->desired_right = DegToRads(0);
+  }
 
   if(robot._flappingParam->time < robot.getFlapMs())  robot._flappingParam->time++;
   else  robot._flappingParam->time = 0;
-
-  if(timer_frequency < 1000 && !flag_stop_frequency) timer_frequency++;
-  else{
-    if(robot._flappingParam->frequency >= 10){
-      flag_stop_frequency = 1;
-      robot._flappingParam->frequency = 0;
-    }
-    else if(!flag_stop_frequency){
-      robot._flappingParam->frequency++;
-    }
-    timer_frequency = 0;
-  }
 }
 
 void sbusHandler(){
 
-    if(robot._flappingParam->frequency>0){
-      wing_left.setPosition(wing_left.degToSignal(robot._flappingParam->signal - robot._flappingParam->rolling));
-      wing_right.setPosition(wing_right.degToSignal(-robot._flappingParam->signal) + robot._flappingParam->rolling);
-    }
-    else{
-      wing_left.setPosition(wing_left.degToSignal(0));
-      wing_right.setPosition(wing_right.degToSignal(0));
-    }
-
-    // wing_left.setPosition(wing);
-    // wing_right.setPosition(iter);
+  wing_left.setPosition(wing_left.degToSignal(robot._flappingParam->signal - robot._flappingParam->rolling));
+  wing_right.setPosition(wing_right.degToSignal(-robot._flappingParam->signal) + robot._flappingParam->rolling);
 
 }
 
@@ -159,7 +142,7 @@ void setup() {
 
   pinMode(22, INPUT);
   pinMode(23, INPUT);
-  pinMode(21, OUTPUT);
+  // pinMode(21, OUTPUT);
 
   power_left.begin();
   power_right.begin();
@@ -210,15 +193,14 @@ void loop() {
 void serialEvent(){
   while(Serial.available()>0){
     uint8_t received_data = Serial.read();
-    // Serial.println(received_data);
-      // received_data = 51;
+
     if(received_data > 10 && received_data <= 110){
-      
       robot._flappingParam->pattern = received_data%10;
       robot._flappingParam->frequency = (uint8_t)(received_data*0.1);
     }
     else{
       robot._flappingParam->frequency = 0;
     }
+
   }
 }
