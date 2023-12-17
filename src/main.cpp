@@ -79,8 +79,8 @@ float DegToRads(float degree){
 void commHandler(){
 
   if(debugging){
-    // String data = (String)robot.p_wing_data->actual_left + "\t" + (String)robot.p_wing_data->actual_right;
-    Serial.println(robot._flappingParam->frequency);
+    String data = (String)robot._flappingParam->frequency + "," + (String)robot._flappingParam->offset + "," + (String)robot._flappingParam->pattern;
+    Serial.println(data);
   }
     
   else{
@@ -99,10 +99,12 @@ void commHandler(){
 
 void interpolationHandler(){
   robot._flappingParam->amplitude = 30;
-  robot._flappingParam->offset = 20;
+  robot._flappingParam->offset = 15;
   robot._flappingParam->rolling = 0;
+  robot._flappingParam->pattern = sine;
+  robot._flappingParam->frequency = 3.5;
 
-  // robot._flappingParam->signal = 0;
+  robot._flappingParam->signal = 0;
   if(robot._flappingParam->frequency > 0.01f){
     robot._flappingParam->signal = robot.flappingPattern(robot._flappingParam->pattern);
     robot.p_wing_data->desired_left = DegToRads(robot._flappingParam->signal - robot._flappingParam->rolling);
@@ -138,7 +140,7 @@ void setup() {
   
   wing_left.setPosition(wing_left.degToSignal(0));
   wing_right.setPosition(wing_right.degToSignal(0));
-  delay(1000);
+  delay(3000);
 
   pinMode(22, INPUT);
   pinMode(23, INPUT);
@@ -191,16 +193,28 @@ void loop() {
 }
 
 void serialEvent(){
-  while(Serial.available()>0){
-    uint8_t received_data = Serial.read();
+  size_t n_buffer = 4;
+  uint8_t buffer_serial[n_buffer];
 
-    if(received_data > 10 && received_data <= 110){
-      robot._flappingParam->pattern = received_data%10;
-      robot._flappingParam->frequency = (uint8_t)(received_data*0.1);
+  while(Serial.available()>0){
+    // uint8_t received_data = Serial.read();
+
+    Serial.readBytesUntil(0xFE, buffer_serial, n_buffer);
+
+    if(buffer_serial[0] == 0xFF){
+      robot._flappingParam->pattern = buffer_serial[1];
+      robot._flappingParam->frequency = buffer_serial[2] * 0.1;
+      robot._flappingParam->offset = buffer_serial[3] - 100;
     }
-    else{
-      robot._flappingParam->frequency = 0;
-    }
+
+    memset(buffer_serial, '\0', n_buffer);
+    // if(received_data > 10 && received_data <= 110){
+    //   robot._flappingParam->pattern = received_data%10;
+    //   robot._flappingParam->frequency = (uint8_t)(received_data*0.1);
+    // }
+    // else{
+    //   robot._flappingParam->frequency = 0;
+    // }
 
   }
 }

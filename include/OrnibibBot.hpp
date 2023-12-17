@@ -44,7 +44,7 @@ private:
   };
 
   typedef struct {
-    uint8_t offset;
+    int8_t offset;
     uint16_t time;
     uint8_t amplitude;
     volatile int8_t signal;
