@@ -74,8 +74,6 @@ float DegToRads(float degree){
   return (float) degree * (M_PI/180.0f);
 }
 
-
-
 void commHandler(){
 
   if(debugging){
@@ -98,13 +96,14 @@ void commHandler(){
 }
 
 void interpolationHandler(){
-  robot._flappingParam->amplitude = 30;
-  robot._flappingParam->offset = 15;
+  // robot._flappingParam->amplitude = 30;
+  // robot._flappingParam->offset = 15;
   robot._flappingParam->rolling = 0;
   robot._flappingParam->pattern = sine;
-  robot._flappingParam->frequency = 3.5;
+  robot._flappingParam->frequency = 2;
+  robot._flappingParam->offset = 15;
+  robot._flappingParam->amplitude = 30;
 
-  robot._flappingParam->signal = 0;
   if(robot._flappingParam->frequency > 0.01f){
     robot._flappingParam->signal = robot.flappingPattern(robot._flappingParam->pattern);
     robot.p_wing_data->desired_left = DegToRads(robot._flappingParam->signal - robot._flappingParam->rolling);
@@ -138,9 +137,26 @@ void setup() {
   if(debugging) Serial.begin(115200);
   else Serial.begin(460800);
   
-  wing_left.setPosition(wing_left.degToSignal(0));
-  wing_right.setPosition(wing_right.degToSignal(0));
-  delay(3000);
+  // wing_left.setPosition(wing_left.degToSignal(10));
+  // delay(500);
+  // wing_right.setPosition(wing_right.degToSignal(10));
+  // delay(500);
+
+  for(int i=0; i<3; i++){
+      wing_left.setPosition(wing_left.degToSignal(0));
+      wing_right.setPosition(wing_right.degToSignal(0));
+      delay(100);
+  }
+  // wing_left.setPosition(wing_left.degToSignal(0));
+  // wing_left.setPosition(wing_left.degToSignal(0));
+  // wing_left.setPosition(wing_left.degToSignal(0));
+
+  // delay(1000);
+  // wing_right.setPosition(wing_right.degToSignal(0));
+  // wing_left.setPosition(wing_left.degToSignal(0));
+  // wing_left.setPosition(wing_left.degToSignal(0));
+
+  // delay(1000);
 
   pinMode(22, INPUT);
   pinMode(23, INPUT);
@@ -165,6 +181,7 @@ void setup() {
   power_source.linearCalibrate(ina219Reading_mA, extMeterReading_mA); delay(100);
 
   while(!Serial);
+  delay(5000);
   sensor.begin(sensorHandler, 5000);
   sensor.priority(0);
   interpolation.begin(interpolationHandler, 1000);
@@ -192,29 +209,35 @@ void loop() {
 
 }
 
-void serialEvent(){
-  size_t n_buffer = 4;
-  uint8_t buffer_serial[n_buffer];
+// void serialEvent(){
+//   size_t n_buffer = 4;
+//   uint8_t buffer_serial[n_buffer];
 
-  while(Serial.available()>0){
-    // uint8_t received_data = Serial.read();
+//   while(Serial.available()>0){
+//     // uint8_t received_data = Serial.read();
 
-    Serial.readBytesUntil(0xFE, buffer_serial, n_buffer);
+//     Serial.readBytesUntil(0xFE, buffer_serial, n_buffer);
 
-    if(buffer_serial[0] == 0xFF){
-      robot._flappingParam->pattern = buffer_serial[1];
-      robot._flappingParam->frequency = buffer_serial[2] * 0.1;
-      robot._flappingParam->offset = buffer_serial[3] - 100;
-    }
+//     if(buffer_serial[0] == 0xFF){
+//       // robot._flappingParam->pattern = buffer_serial[1];
+//       // robot._flappingParam->frequency = buffer_serial[2] * 0.1;
+//       // robot._flappingParam->offset = buffer_serial[3] - 100;
+//       // robot._flappingParam->amplitude = 30;
 
-    memset(buffer_serial, '\0', n_buffer);
-    // if(received_data > 10 && received_data <= 110){
-    //   robot._flappingParam->pattern = received_data%10;
-    //   robot._flappingParam->frequency = (uint8_t)(received_data*0.1);
-    // }
-    // else{
-    //   robot._flappingParam->frequency = 0;
-    // }
+//       // robot._flappingParam->pattern = triangle;
+//       // robot._flappingParam->frequency = 1;
+//       // robot._flappingParam->offset = 15;
+//       // robot._flappingParam->amplitude = 30;
+//     }
 
-  }
-}
+//     memset(buffer_serial, '\0', n_buffer);
+//     // if(received_data > 10 && received_data <= 110){
+//     //   robot._flappingParam->pattern = received_data%10;
+//     //   robot._flappingParam->frequency = (uint8_t)(received_data*0.1);
+//     // }
+//     // else{
+//     //   robot._flappingParam->frequency = 0;
+//     // }
+
+//   }
+// }
