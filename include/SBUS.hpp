@@ -24,6 +24,7 @@ class SBUS{
         char rx_sbus_data[SBUS_BUFFER];
         char* _rx_sbus_data;
         Stream *serial_dev_;
+        bool invert_flag_;
         
     public:
         SBUS(HardwareSerial *serial_dev, bool invert);
@@ -33,6 +34,7 @@ class SBUS{
         // bool setPosition(uint16_t pos[]);
         bool setPosition(uint16_t pos);
         bool sendPosition(uint8_t data[SBUS_BUFFER]);
+        void begin();
         // char* get_sbus();
         // void getPosition();
 

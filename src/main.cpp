@@ -76,6 +76,12 @@ float DegToRads(float degree){
 
 void commHandler(){
 
+  if(debugging){
+    String data = (String)robot._flappingParam->frequency + "," + (String)robot._flappingParam->offset + "," + (String)robot._flappingParam->pattern;
+    Serial.println(data);
+  }
+    
+  else{
     comm._raw_data->timestamp             = (uint32_t)millis()-time_start;
     comm._raw_data->desired_left          = robot.p_wing_data->desired_left;
     comm._raw_data->desired_right         = robot.p_wing_data->desired_right;
@@ -85,16 +91,16 @@ void commHandler(){
     comm._raw_data->power_right           = robot.p_wing_data->power_right;
 
     comm.sendingPacket(comm._raw_data);
-  
+  }
+
 }
 
 void interpolationHandler(){
   // robot._flappingParam->amplitude = 30;
   // robot._flappingParam->offset = 15;
   robot._flappingParam->rolling = 0;
-  robot._flappingParam->pattern = sine;
-  robot._flappingParam->frequency = 1;
-  robot._flappingParam->frequency = 2;
+  robot._flappingParam->pattern = square;
+  robot._flappingParam->frequency = 3;
   robot._flappingParam->offset = 15;
   robot._flappingParam->amplitude = 30;
 
@@ -128,28 +134,19 @@ void sensorHandler(){
 void setup() {
   // Configure serial transport
 
-  Serial.begin(460800);
-  
-  // wing_left.setPosition(wing_left.degToSignal(10));
-  // delay(500);
-  // wing_right.setPosition(wing_right.degToSignal(10));
-  // delay(500);
+  if(debugging) Serial.begin(115200);
+  else Serial.begin(460800);
 
-  for(int i=0; i<3; i++){
-      wing_left.setPosition(wing_left.degToSignal(0));
-      wing_right.setPosition(wing_right.degToSignal(0));
-      delay(100);
-  }
-  // wing_left.setPosition(wing_left.degToSignal(0));
-  // wing_left.setPosition(wing_left.degToSignal(0));
-  // wing_left.setPosition(wing_left.degToSignal(0));
+  // Serial1.begin(100000, SERIAL_8E2_TXINV);
+  // Serial2.begin(100000, SERIAL_8E2_TXINV);
 
-  // delay(1000);
-  // wing_right.setPosition(wing_right.degToSignal(0));
-  // wing_left.setPosition(wing_left.degToSignal(0));
-  // wing_left.setPosition(wing_left.degToSignal(0));
-
-  // delay(1000);
+  wing_left.begin();
+  wing_right.begin();
+  delay(1000);
+  wing_left.setPosition(wing_left.degToSignal(0));
+  delay(500);
+  wing_right.setPosition(wing_right.degToSignal(0));
+  delay(500);
 
   pinMode(22, INPUT);
   pinMode(23, INPUT);
@@ -197,6 +194,7 @@ void loop() {
     robot.p_wing_data->power_right = (float) power_right.getPower_mW() * 0.62f * 0.001f;
 
     previous_time = current_time;
+    // Serial.println(robot._flappingParam->frequency);
   }
 
 }
@@ -231,5 +229,5 @@ void loop() {
 //     //   robot._flappingParam->frequency = 0;
 //     // }
 
-  }
-}
+//   }
+// }
