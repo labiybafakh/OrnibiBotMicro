@@ -76,12 +76,6 @@ float DegToRads(float degree){
 
 void commHandler(){
 
-  if(debugging){
-    String data = (String)robot._flappingParam->frequency + "," + (String)robot._flappingParam->offset + "," + (String)robot._flappingParam->pattern;
-    Serial.println(data);
-  }
-    
-  else{
     comm._raw_data->timestamp             = (uint32_t)millis()-time_start;
     comm._raw_data->desired_left          = robot.p_wing_data->desired_left;
     comm._raw_data->desired_right         = robot.p_wing_data->desired_right;
@@ -91,8 +85,7 @@ void commHandler(){
     comm._raw_data->power_right           = robot.p_wing_data->power_right;
 
     comm.sendingPacket(comm._raw_data);
-  }
-
+  
 }
 
 void interpolationHandler(){
@@ -100,6 +93,7 @@ void interpolationHandler(){
   // robot._flappingParam->offset = 15;
   robot._flappingParam->rolling = 0;
   robot._flappingParam->pattern = sine;
+  robot._flappingParam->frequency = 1;
   robot._flappingParam->frequency = 2;
   robot._flappingParam->offset = 15;
   robot._flappingParam->amplitude = 30;
@@ -134,8 +128,7 @@ void sensorHandler(){
 void setup() {
   // Configure serial transport
 
-  if(debugging) Serial.begin(115200);
-  else Serial.begin(460800);
+  Serial.begin(460800);
   
   // wing_left.setPosition(wing_left.degToSignal(10));
   // delay(500);
@@ -204,7 +197,6 @@ void loop() {
     robot.p_wing_data->power_right = (float) power_right.getPower_mW() * 0.62f * 0.001f;
 
     previous_time = current_time;
-    // Serial.println(robot._flappingParam->frequency);
   }
 
 }
@@ -239,5 +231,5 @@ void loop() {
 //     //   robot._flappingParam->frequency = 0;
 //     // }
 
-//   }
-// }
+  }
+}
