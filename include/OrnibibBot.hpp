@@ -14,11 +14,11 @@
 // #define triangle 5
 
 enum flapping_pattern{
-  sine = 1,
-  square = 3,
-  triangle = 5,
-  saw = 7,
-  reverse_saw = 9
+  sine,
+  square,
+  triangle,
+  saw,
+  reverse_saw
 };
 
 typedef struct{

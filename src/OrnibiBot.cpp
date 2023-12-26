@@ -49,16 +49,3 @@ volatile int8_t OrnibiBot::flappingPattern(uint8_t pattern){
     else if(pattern==saw) return OrnibiBot::sawFlap();
     else if(pattern==reverse_saw) return OrnibiBot::reverse_sawFlap();
 }
-
-// double OrnibiBot::getRawPosition(uint8_t pin){
-//     pinMode(pin, INPUT);
-//     return pulseIn(pin, RISSING, 1000);
-// }
-
-// double OrnibiBot::getPositioninRadians(uint8_t pin){
-//     return OrnibiBot::getRawPosition * scalar;
-// }
-
-// double OrnibiBot::getPositioninDegrees(uint8_t pin){
-//     return OrnibiBot::getPositioninRadians(pin) * RADS;
-// }
