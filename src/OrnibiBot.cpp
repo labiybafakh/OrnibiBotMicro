@@ -21,6 +21,15 @@ volatile int8_t OrnibiBot::sineFlap(){
     return (volatile int8_t) (_flappingParam->amplitude * sin(((2*M_PI)/(double)OrnibiBot::getFlapMs() * _flappingParam->time))) + _flappingParam->offset;
 }
 
+volatile int8_t OrnibiBot::sineFlapWithAdjust(float down_stroke_periode){
+    if(_flappingParam->time >= 0 && _flappingParam->time < down_stroke_periode)
+        return (volatile int8_t) (_flappingParam->amplitude * cos(M_PI * _flappingParam->time /(double)OrnibiBot::getFlapMs()));
+
+    else{
+        return (volatile int8_t) (_flappingParam->amplitude * -cos(M_PI * (_flappingParam->time - down_stroke_periode) / ((double)OrnibiBot::getFlapMs()-down_stroke_periode)));
+    }
+}
+
 volatile int8_t OrnibiBot::squareFlap(){
     uint8_t signal =  (uint8_t) _flappingParam->amplitude * sin(((2*M_PI)/(double)OrnibiBot::getFlapMs() * _flappingParam->time));
     
@@ -42,10 +51,12 @@ volatile int8_t OrnibiBot::triangleFlap(){
     return (volatile int8_t)(2*_flappingParam->amplitude/M_PI) * asin(sin((2*M_PI/(double)OrnibiBot::getFlapMs())*_flappingParam->time)) + _flappingParam->offset;
 }
 
-volatile int8_t OrnibiBot::flappingPattern(uint8_t pattern){
+
+volatile int8_t OrnibiBot::flappingPattern(uint8_t pattern, uint8_t down_stroke_percentage){
     if(pattern==sine) return OrnibiBot::sineFlap();
     else if(pattern==triangle) return OrnibiBot::triangleFlap();
     else if(pattern==square) return OrnibiBot::squareFlap();
     else if(pattern==saw) return OrnibiBot::sawFlap();
     else if(pattern==reverse_saw) return OrnibiBot::reverse_sawFlap();
+    else if(pattern==adjust_sine) return OrnibiBot::sineFlapWithAdjust(down_stroke_percentage);
 }

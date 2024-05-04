@@ -93,7 +93,7 @@ void commHandler(){
     comm._raw_data->power_left            = robot.p_wing_data->power_left;
     comm._raw_data->power_right           = robot.p_wing_data->power_right;
 
-    comm.sendingPacket(comm._raw_data);
+    // comm.sendingPacket(comm._raw_data);
   }
 
 }
@@ -107,8 +107,11 @@ void interpolationHandler(){
   // robot._flappingParam->offset = 15;
   // robot._flappingParam->amplitude = 30;
 
+  uint8_t down_stroke_percentage = 30;
+  robot._flappingParam->pattern = adjust_sine;
+
   if(robot._flappingParam->frequency > 0.01f){
-    robot._flappingParam->signal = robot.flappingPattern(robot._flappingParam->pattern);
+    robot._flappingParam->signal = robot.flappingPattern(robot._flappingParam->pattern, down_stroke_percentage);
     robot.p_wing_data->desired_left = DegToRads(robot._flappingParam->signal - robot._flappingParam->rolling);
     robot.p_wing_data->desired_right = DegToRads(robot._flappingParam->signal + robot._flappingParam->rolling);
   }
@@ -120,6 +123,8 @@ void interpolationHandler(){
 
   if(robot._flappingParam->time < robot.getFlapMs())  robot._flappingParam->time++;
   else  robot._flappingParam->time = 0;
+
+  Serial.print(robot._flappingParam->signal);
 }
 
 void sbusHandler(){
@@ -174,7 +179,7 @@ void setup() {
   power_source.linearCalibrate(ina219Reading_mA, extMeterReading_mA); delay(100);
 
   while(!Serial);
-  delay(5000);
+  // delay(5000);
   sensor.begin(sensorHandler, 5000);
   sensor.priority(0);
   interpolation.begin(interpolationHandler, 1000);
