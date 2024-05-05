@@ -52,7 +52,7 @@ volatile int8_t OrnibiBot::triangleFlap(){
 }
 
 
-volatile int8_t OrnibiBot::flappingPattern(uint8_t pattern, uint8_t down_stroke_percentage){
+volatile int8_t OrnibiBot::flappingPattern(uint8_t pattern, uint16_t down_stroke_percentage){
     if(pattern==sine) return OrnibiBot::sineFlap();
     else if(pattern==triangle) return OrnibiBot::triangleFlap();
     else if(pattern==square) return OrnibiBot::squareFlap();

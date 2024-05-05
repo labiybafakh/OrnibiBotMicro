@@ -85,7 +85,7 @@ public:
   OrnibiBot();
   ~OrnibiBot();
   volatile uint16_t getFlapMs();
-  volatile int8_t flappingPattern(uint8_t pattern, uint8_t down_stroke_percentage);
+  volatile int8_t flappingPattern(uint8_t pattern, uint16_t down_stroke_percentage);
 
 
 };
