@@ -52,6 +52,7 @@ private:
     float frequency;
     uint8_t rolling;
     uint8_t pattern;
+    uint8_t down_stroke_percentage;
   } flappingParameter;
 
   typedef struct{
@@ -63,7 +64,7 @@ private:
     volatile float power_right;
   } wingData;
 
-  volatile int8_t sineFlapWithAdjust(float down_stroke_periode);
+  volatile int8_t sineFlapWithAdjust(uint8_t down_stroke_periode);
   volatile int8_t sineFlap();
   volatile int8_t squareFlap();
   volatile int8_t sawFlap();
@@ -85,7 +86,7 @@ public:
   OrnibiBot();
   ~OrnibiBot();
   volatile uint16_t getFlapMs();
-  volatile int8_t flappingPattern(uint8_t pattern, uint16_t down_stroke_percentage);
+  volatile int8_t flappingPattern(uint8_t pattern, uint8_t down_stroke_percentage);
 
 
 };
