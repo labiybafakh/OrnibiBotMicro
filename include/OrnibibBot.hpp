@@ -18,7 +18,8 @@ enum flapping_pattern{
   square,
   triangle,
   saw,
-  reverse_saw
+  reverse_saw,
+  adjust_sine
 };
 
 typedef struct{
@@ -51,6 +52,7 @@ private:
     float frequency;
     uint8_t rolling;
     uint8_t pattern;
+    uint8_t down_stroke_percentage;
   } flappingParameter;
 
   typedef struct{
@@ -62,6 +64,7 @@ private:
     volatile float power_right;
   } wingData;
 
+  volatile int8_t sineFlapWithAdjust(uint8_t down_stroke_periode);
   volatile int8_t sineFlap();
   volatile int8_t squareFlap();
   volatile int8_t sawFlap();
@@ -83,7 +86,7 @@ public:
   OrnibiBot();
   ~OrnibiBot();
   volatile uint16_t getFlapMs();
-  volatile int8_t flappingPattern(uint8_t pattern);
+  volatile int8_t flappingPattern(uint8_t pattern, uint8_t down_stroke_percentage);
 
 
 };
