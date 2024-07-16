@@ -120,8 +120,8 @@ void interpolationHandler(){
 
 void sbusHandler(){
 
-  uint16_t left_position = wing_left.degToSignal(robot._flappingParam->signal - robot._flappingParam->rolling);
-  uint16_t right_position = wing_right.degToSignal(-robot._flappingParam->signal + robot._flappingParam->rolling);
+  uint16_t left_position = wing_left.degToSignal(robot._flappingParam->signal);
+  uint16_t right_position = wing_right.degToSignal(-robot._flappingParam->signal);
 
   wing_left.setPosition(left_position);
   wing_right.setPosition(right_position);
@@ -211,7 +211,7 @@ void serialEvent(){
     if(serial_data[0] == 0xFF && serial_data[6] == 0xEE){
       robot._flappingParam->frequency = (float) serial_data[1] * 0.1f;
       robot._flappingParam->pattern = (uint8_t) serial_data[2];
-      // robot._flappingParam->offset = ((int8_t) serial_data[3]) - 100;
+      robot._flappingParam->offset = ((int8_t) serial_data[3]) - 100;
       robot._flappingParam->amplitude = (uint8_t)serial_data[4];
       robot._flappingParam->down_stroke_percentage = (uint8_t) serial_data[5];
 
